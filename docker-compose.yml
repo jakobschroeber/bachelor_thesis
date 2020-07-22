@@ -1,0 +1,163 @@
+version: "3.2"
+
+services:
+
+  assessment_ms:
+    build:
+      context: ./assessment_ms
+    image: assessment_ms:1.0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./assessment_ms/app:/app
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+    networks:
+      mdl_network: 
+        ipv4_address: 172.20.0.2
+      xapi_network:
+        ipv4_address: 172.22.0.4
+    
+  apache:
+    image: "moodlehq/moodle-php-apache:${APACHE_PHP_VERSION}"
+    depends_on:
+      - db
+    volumes:
+      - "${MOODLE_DIRECTORY}:/var/www/html"
+      - "${MOODLEDATA_PERSISTANCE}:/var/www/moodledata:rw"
+    env_file:
+      - env.d/apache
+    networks:
+      mdl_network: 
+        ipv4_address: 172.20.0.3
+      xapi_network:
+        ipv4_address: 172.22.0.2
+    ports:
+      - "${MOODLE_WEB_PORT}:80"
+      
+  db:
+    image: mysql:5
+    volumes:
+      - "${MYSQL_PERSISTANCE}:/var/lib/mysql"
+    command: >
+                --character-set-server=utf8mb4
+                --collation-server=utf8mb4_bin
+                --innodb_file_format=barracuda
+                --innodb_file_per_table=On
+                --innodb_large_prefix=On
+    env_file:
+      - env.d/mysql
+    networks:
+      mdl_network: 
+        ipv4_address: 172.20.0.4
+    ports:
+      - "${MYSQL_HOST_PORT}:3306"
+      
+  mongodb:
+    image: mongo:4.0
+    # We use WiredTiger in all environments. In development environments we use small files
+    # to conserve disk space, and disable the journal for a minor performance gain.
+    # See https://docs.mongodb.com/v3.0/reference/program/mongod/#options for complete details.
+    command: mongod --smallfiles --nojournal --storageEngine wiredTiger
+    networks:
+      - ll_network
+
+  mailcatcher:
+    image: sj26/mailcatcher:latest
+    ports:
+      - 1080:1080
+    networks:
+      - ll_network
+
+  redis:
+    image: redis:4-alpine
+    networks:
+      - ll_network
+
+  xapi:
+    image: fundocker/xapi-service:v3.6.0
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/learninglocker_v2
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - mongodb
+      - redis
+      - api
+      - ui
+      - worker
+    networks:
+      - ll_network
+
+  api:
+    image: fundocker/learninglocker:latest
+    env_file:
+      - env.d/learninglocker
+    expose:
+      - 8080
+    volumes:
+      - "./storage/learninglocker:/app/storage"
+    command: "pm2-runtime api/dist/server"
+    depends_on:
+      - mongodb
+      - redis
+      - mailcatcher
+    networks:
+      - ll_network
+
+  ui:
+    image: fundocker/learninglocker:latest
+    env_file:
+      - env.d/learninglocker
+    volumes:
+      - "./storage/learninglocker:/app/storage"
+    expose:
+      - "3000"
+    command: "pm2-runtime ui/dist/server"
+    depends_on:
+      - mongodb
+      - redis
+      - api
+    networks:
+      - ll_network
+
+  worker:
+    image: fundocker/learninglocker:latest
+    env_file:
+      - env.d/learninglocker
+    volumes:
+      - "./storage/learninglocker:/app/storage"
+    command: "pm2-runtime worker/dist/server"
+    depends_on:
+      - mongodb
+      - redis
+      - mailcatcher
+    networks:
+      - ll_network
+
+  nginx:
+    image: nginx:1.15
+    env_file:
+      - env.d/nginx
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/conf.d/default.conf.template
+    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+    depends_on:
+      - ui
+      - xapi
+    ports:
+      - 8003:80
+    networks:
+      ll_network: {}
+      xapi_network:
+        ipv4_address: 172.22.0.3
+      
+networks:
+  mdl_network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  ll_network: {}
+  xapi_network:
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16

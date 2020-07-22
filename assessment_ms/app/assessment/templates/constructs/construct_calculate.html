@@ -1,0 +1,16 @@
+{% extends 'assessment_base.html' %}
+
+{% block content %}
+<table>
+    {% for result in view.results %}
+    {% if forloop.first %}
+    <tr>
+        {% for fieldname in result.keys %}<th>{{ fieldname }}</th>{% endfor %}
+    </tr>
+    {% endif %}
+    <tr>
+        {% for value in result.values %}<td>{{ value }}</td>{% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

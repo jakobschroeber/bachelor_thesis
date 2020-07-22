@@ -1,0 +1,19 @@
+{% extends 'assessment_base.html' %}
+
+{% block content %}
+
+<table>
+    <tr>
+        <th>user</th>
+        {% for fieldname in indicator_labels %}<th>{{ fieldname }}</th>{% endfor %}
+    </tr>
+
+    {% for key, values in view.results.items %}
+    <tr>
+        <td>{{ key }}</td>
+        {% for fieldname in indicator_labels %}<td>{{ values|get_item:fieldname }}</td>{% endfor %}
+    </tr>
+    {% endfor %}
+
+</table>
+{% endblock %}

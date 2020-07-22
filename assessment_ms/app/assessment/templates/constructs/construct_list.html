@@ -1,0 +1,33 @@
+{% extends 'assessment_base.html' %}
+
+{% block content %}
+<table>
+    {% for instance in object_list %}
+    {% if forloop.first %}
+    <tr>
+        {% for fieldname in headers %}<th>{{ fieldname }}</th>{% endfor %}
+        <th>Actions</th>
+    </tr>
+    {% endif %}
+    <tr>
+        {% for value in instance.values %}<td>{{ value }}</td>{% endfor %}
+        <td>
+            <br>
+            <a href="{{ instance.id }}/">Update construct</a><br>
+            <a href="{{ instance.id }}/indicators/">Show assigned indicators</a><br>
+            <a href="{{ instance.id }}/indicator_values/original/">Calculate original values of assigned indicators</a><br>
+            <a href="{{ instance.id }}/indicator_values/normalized/">Calculate normalized values of assigned indicators</a><br>
+            <a href="{{ instance.id }}/indicator_values/standardized">Calculate standardized values of assigned indicators</a><br>
+            <a href="{{ instance.id }}/calculate/">Calculate values of construct (based on normalized indicator values)</a><br>
+            <a href="{{ instance.id }}/results/">Show results from database</a><br>
+            <br>
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+<br>
+<p>
+    <a href="create/">Create new indicator</a>
+</p>
+{% endblock %}

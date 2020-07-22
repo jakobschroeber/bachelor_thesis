@@ -1,0 +1,25 @@
+{% extends 'assessment_base.html' %}
+
+{% block content %}
+
+<table>
+    <tr>
+        <th>User ID</th>
+        <th>Username</th>
+        <th>{{ indicator.column_label }}</th>
+        <th>Created</th>
+        <th>Last modified</th>
+    </tr>
+    {% for instance in object_list %}
+    <tr>
+        <td>{{ instance.user.id }}</td>
+        <td>{{ instance.user.username }}</td>
+        <td>{{ instance.value }}</td>
+        <td>{{ instance.time_created }}</td>
+        <td>{{ instance.last_time_modified }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% endblock %}
