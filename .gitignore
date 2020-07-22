@@ -1,6 +1,2 @@
 archive
-moodle/*
-storage/learninglocker/*
-storage/moodledata/*
-storage/mysql/*
-storage/nginx/*
+
