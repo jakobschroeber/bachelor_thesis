@@ -4,13 +4,15 @@
 
 <table>
     <tr>
-        <th>user</th>
+        <th>Course ID</th>
+        <th>User ID</th>
         {% for fieldname in indicator_labels %}<th>{{ fieldname }}</th>{% endfor %}
     </tr>
 
     {% for key, values in view.results.items %}
     <tr>
-        <td>{{ key }}</td>
+        <td>{{ key.0 }}</td>
+        <td>{{ key.1 }}</td>
         {% for fieldname in indicator_labels %}<td>{{ values|get_item:fieldname }}</td>{% endfor %}
     </tr>
     {% endfor %}

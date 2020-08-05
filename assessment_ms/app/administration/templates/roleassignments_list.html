@@ -1,0 +1,25 @@
+{% extends 'assessment_base.html' %}
+
+{% block content %}
+<table>
+    {% for instance in object_list %}
+    {% if forloop.first %}
+    <tr>
+        {% for fieldname in instance.keys %}<th>{{ fieldname }}</th>{% endfor %}
+        <th>Actions</th>
+    </tr>
+    {% endif %}
+    <tr>
+        {% for value in instance.values %}<td>{{ value }}</td>{% endfor %}
+        <td>
+            {% if instance.Ignore == False %}
+                <a href="{{ instance.ID }}/">Disable assessment</a>
+            {% else %}
+                <a href="{{ instance.ID }}/">Enable assessment</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+{% endblock %}

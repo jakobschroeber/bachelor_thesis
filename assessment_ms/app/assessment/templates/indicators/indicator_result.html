@@ -4,14 +4,18 @@
 
 <table>
     <tr>
+        <th>Course ID</th>
+        <th>Course full name</th>
         <th>User ID</th>
-        <th>Username</th>
+        <th>User name</th>
         <th>{{ indicator.column_label }}</th>
         <th>Created</th>
         <th>Last modified</th>
     </tr>
     {% for instance in object_list %}
     <tr>
+        <td>{{ instance.course.id }}</td>
+        <td>{{ instance.course.fullname }}</td>
         <td>{{ instance.user.id }}</td>
         <td>{{ instance.user.username }}</td>
         <td>{{ instance.value }}</td>

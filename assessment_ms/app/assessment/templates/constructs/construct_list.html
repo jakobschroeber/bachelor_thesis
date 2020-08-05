@@ -12,7 +12,6 @@
     <tr>
         {% for value in instance.values %}<td>{{ value }}</td>{% endfor %}
         <td>
-            <br>
             <a href="{{ instance.id }}/">Update construct</a><br>
             <a href="{{ instance.id }}/indicators/">Show assigned indicators</a><br>
             <a href="{{ instance.id }}/indicator_values/original/">Calculate original values of assigned indicators</a><br>
@@ -20,7 +19,6 @@
             <a href="{{ instance.id }}/indicator_values/standardized">Calculate standardized values of assigned indicators</a><br>
             <a href="{{ instance.id }}/calculate/">Calculate values of construct (based on normalized indicator values)</a><br>
             <a href="{{ instance.id }}/results/">Show results from database</a><br>
-            <br>
         </td>
     </tr>
     {% endfor %}
@@ -28,6 +26,6 @@
 </table>
 <br>
 <p>
-    <a href="create/">Create new indicator</a>
+    <a href="create/">Create new construct</a>
 </p>
 {% endblock %}

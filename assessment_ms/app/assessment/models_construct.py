@@ -1,5 +1,5 @@
 from django.db import models
-from data_sink.models import MoodleUser
+from administration.models import Course, User
 
 from django.db.models import Avg, Max, Min
 from django.db.models.aggregates import StdDev
@@ -20,72 +20,62 @@ class Construct(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    def provide_indicator_results(self, userid_list):
+    def provide_indicator_results(self, course_qs, aggregation_type):
         indicators = self.indicator_set.all()
         indicator_results = {}
-        for userid in userid_list:
-            indicator_results[userid] = {}
+
+        # For each course create entries (courseid, userid) used as keys later
+        for course in course_qs:
+            for userid in course.get_users_for_assessment():
+                indicator_results[(course.id, userid)] = {}
+
+        # for each indicator, per course: calculate min and max and write indicator values into dictionary
         for indicator in indicators:
             column_label = indicator.column_label
-            queryset = indicator.calculate_result(userid_list)
-            (k1, k2) = queryset[0]
-            for entry in queryset:
-                indicator_results[entry[k1]][column_label] = entry[k2]
+            queryset = indicator.calculate_result(course_qs)
+            (k1, k2, k3) = queryset[0]
+            for course in course_qs:
+                if (aggregation_type == 'original'):
+                    for entry in queryset.filter(courseid=course.id):
+                        indicator_results[(entry[k1], entry[k2])][column_label] = entry[k3]
+                elif (aggregation_type == 'normalized'):
+                    max = queryset.filter(courseid=course.id).aggregate(Max(k3))[f'{k3}__max']
+                    min = queryset.filter(courseid=course.id).aggregate(Min(k3))[f'{k3}__min']
+                    for entry in queryset.filter(courseid=course.id):
+                        indicator_results[(entry[k1], entry[k2])][column_label] = (entry[k3] - min) / (max - min)
+                elif (aggregation_type == 'standardized'):
+                    avg = queryset.filter(courseid=course.id).aggregate(Avg(k3))[f'{k3}__avg']
+                    stddev = queryset.filter(courseid=course.id).aggregate(StdDev(k3))[f'{k3}__stddev']
+                    for entry in queryset.filter(courseid=course.id):
+                        indicator_results[(entry[k1], entry[k2])][column_label] = (entry[k3] - avg) / stddev
+                else:
+                    raise('Unknown aggregation type')
         return indicator_results
 
-    def provide_standardized_indicator_results(self, userid_list):
-        indicators = self.indicator_set.all()
-        indicator_results = {}
-        for userid in userid_list:
-            indicator_results[userid] = {}
-        for indicator in indicators:
-            column_label = indicator.column_label
-            queryset = indicator.calculate_result(userid_list)
-            (k1, k2) = queryset[0]
-            avg = queryset.aggregate(Avg(k2))[f'{k2}__avg']
-            stddev = queryset.aggregate(StdDev(k2))[f'{k2}__stddev']
-            for entry in queryset:
-                indicator_results[entry[k1]][column_label] = (entry[k2] - avg) / stddev
-        return indicator_results
-
-    def provide_normalized_indicator_results(self, userid_list): # parametrize these 3 functions to reduce redundancy
-        indicators = self.indicator_set.all()
-        indicator_results = {}
-        for userid in userid_list:
-            indicator_results[userid] = {}
-        for indicator in indicators:
-            column_label = indicator.column_label
-            queryset = indicator.calculate_result(userid_list)
-            (k1, k2) = queryset[0]
-            max = queryset.aggregate(Max(k2))[f'{k2}__max']
-            min = queryset.aggregate(Min(k2))[f'{k2}__min']
-            for entry in queryset:
-                indicator_results[entry[k1]][column_label] = (entry[k2] - min) / (max - min)
-        return indicator_results
-
-    def calculate_result(self, userid_list):
-        indicator_results = self.provide_normalized_indicator_results(userid_list)
+    def calculate_result(self, course_qs):
+        indicator_results = self.provide_indicator_results(course_qs, 'normalized') # todo: get aggregation_type from self
         column_label = self.column_label
         result = [{
-            'user': userid,
-            column_label: mean(indicator_results[userid][value] for value in indicator_results[userid])
-        } for userid in userid_list if any(indicator_results[userid])]
+            'Course ID': courseid,
+            'User ID': userid,
+            column_label: mean(indicator_results[(courseid, userid)][value] for value in indicator_results[(courseid, userid)])
+        } for (courseid, userid) in indicator_results if any(indicator_results[(courseid, userid)])]
         return result
 
-    def save_result(self, user_queryset):
+    def save_result(self, course_qs):
         preexisting_results = ConstructResult.objects.filter(construct=self)
-        preexisting_results.filter(user__in=user_queryset.filter(ignore_activity=True)).delete()
-        userid_list = list(user_queryset.filter(ignore_activity=False).values_list('id', flat=True))
-        raw_results = self.calculate_result(userid_list)
-        # assumption here is that calculate_result() delivers validated list of dictionaries [{user: x, result: y}]
-        (k1, k2) = raw_results[0]
+        for course in course_qs:
+            preexisting_results.filter(course=course.pk).exclude(user__in=course.get_users_for_assessment()).delete()
+        raw_results = self.calculate_result(course_qs)
+        (k1, k2, k3) = raw_results[0]
         results = []
         for result in raw_results:
             entry, created = preexisting_results.get_or_create(
                 construct = self,
-                user = MoodleUser.objects.get(pk=result.get(k1))
+                course=Course.objects.get(pk=result.get(k1)),
+                user = User.objects.get(pk=result.get(k2))
                 )
-            entry.value = result.get(k2)
+            entry.value = result.get(k3)
             entry.last_time_modified = timezone.now()
             results.append(entry)
         preexisting_results.bulk_update(results, ['value', 'last_time_modified'], batch_size=50)
@@ -93,14 +83,15 @@ class Construct(models.Model):
 
 class ConstructResult(models.Model):
     construct           = models.ForeignKey(Construct, on_delete=models.CASCADE)
-    user                = models.ForeignKey(MoodleUser, on_delete=models.CASCADE)
+    course              = models.ForeignKey(Course, on_delete=models.CASCADE)
+    user                = models.ForeignKey(User, on_delete=models.CASCADE)
     value               = models.FloatField(null=True)
     time_created        = models.DateTimeField(auto_now_add=True)
     last_time_modified  = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["construct", "user"]
-        unique_together = (("construct", "user"),)
+        ordering = ["construct", "course", "user"]
+        unique_together = (("construct", "course", "user"),)
 
     def __str__(self):
         return f'{self.construct.name}: {self.user.id}'

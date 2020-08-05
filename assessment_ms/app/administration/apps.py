@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class AdministrationConfig(AppConfig):
-    name = 'data_sink'
+    name = 'administration'
 
     def ready(self):
-        import data_sink.signals
+        import administration.signals

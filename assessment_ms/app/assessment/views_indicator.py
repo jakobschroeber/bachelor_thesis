@@ -3,9 +3,11 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView
 
+from administration.signals import initialize_update_administration_data
+
 from .models_indicator import Indicator, IndicatorResult
 from .models_construct import Construct
-from data_sink.models import MoodleUser
+from administration.models import Course, User
 from .forms import IndicatorForm
 
 
@@ -76,11 +78,12 @@ class IndicatorCalculateListView(TemplateView):
     template_name = "indicators/indicator_calculate.html"
 
     def results(self):
-        userid_list = list(MoodleUser.objects.filter(ignore_activity=False).values_list('id', flat=True))
-        raw_result = self.indicator.calculate_result(userid_list)
-        (k1, k2) = raw_result[0]
+        initialize_update_administration_data() # take this out later, make it a button maybe
+        course_qs = Course.objects.exclude(format='site')
+        raw_result = self.indicator.calculate_result(course_qs)
+        (k1, k2, k3) = raw_result[0]
         column_label = self.indicator.column_label
-        result = [{'user': x[k1], column_label: x[k2]} for x in raw_result]
+        result = [{'Course ID': x[k1], 'User ID': x[k2], column_label: x[k3]} for x in raw_result]
         return result
 
     def get_context_data(self, **kwargs):
@@ -95,7 +98,7 @@ class IndicatorResultsListView(ListView):
 
     def get_queryset(self):
         self.indicator = get_object_or_404(Indicator, id=self.kwargs.get("indicator_id"))
-        self.indicator.save_result(MoodleUser.objects.all())  # take this out later, make it a parameter maybe
+        self.indicator.save_result(Course.objects.exclude(format='site'))  # take this out later, make it a button maybe
         queryset = IndicatorResult.objects.filter(indicator=self.indicator).select_related('user')
         return queryset
 

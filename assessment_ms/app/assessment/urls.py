@@ -1,4 +1,3 @@
-# from django.contrib import admin
 from django.urls import path
 
 from .views_indicator import IndicatorListView, IndicatorCreateView, IndicatorUpdateView, IndicatorCalculateListView, \
@@ -22,7 +21,7 @@ urlpatterns = [
     path('constructs/<int:construct_id>/indicators/<int:indicator_id>/', IndicatorUpdateView.as_view()),
     path('constructs/<int:construct_id>/indicators/<int:indicator_id>/calculate/', IndicatorCalculateListView.as_view()),
     path('constructs/<int:construct_id>/indicators/<int:indicator_id>/results/', IndicatorResultsListView.as_view()),
-    path('constructs/<int:construct_id>/indicator_values/<str:value_type>/', ConstructIndicatorValuesView.as_view()),
+    path('constructs/<int:construct_id>/indicator_values/<str:aggregation_type>/', ConstructIndicatorValuesView.as_view()),
     path('constructs/<int:construct_id>/calculate/', ConstructCalculateListView.as_view()),
     path('constructs/<int:construct_id>/results/', ConstructResultsListView.as_view()),
 ]

@@ -41,9 +41,8 @@ INSTALLED_APPS = [
 
     #own
     'data_source',
-    'data_sink',
+    'administration',
     'assessment',
-    'pages',
 ]
 
 MIDDLEWARE = [
@@ -85,7 +84,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'app_db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'app_db_20200804.sqlite3'),
     },
     'moodle': {
         'NAME': 'moodle',

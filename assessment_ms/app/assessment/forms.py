@@ -1,4 +1,4 @@
-from pages.forms import Html5ModelForm
+from app.forms import Html5ModelForm
 from django.forms import ModelChoiceField
 from django_ace import AceWidget # https://github.com/django-ace/django-ace
 

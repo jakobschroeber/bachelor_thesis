@@ -4,9 +4,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView
 
+from administration.signals import initialize_update_administration_data
+
 from .models_construct import Construct, ConstructResult
-from .models_indicator import Indicator
-from data_sink.models import MoodleUser
+from administration.models import Course, User
 from .forms import ConstructForm
 
 
@@ -69,20 +70,16 @@ class ConstructIndicatorValuesView(TemplateView):
         return dictionary.get(key, '')
 
     def results(self):
-        userid_list = list(MoodleUser.objects.filter(ignore_activity=False).values_list('id', flat=True))
-        value_options = { # maybe additional construct attribute or foreign key of a value type model
-            'standardized':    self.construct.provide_standardized_indicator_results(userid_list),
-            'normalized':      self.construct.provide_normalized_indicator_results(userid_list),
-            'original':        self.construct.provide_indicator_results(userid_list)
-        }
-        result = value_options.get(self.value_type) # key error in case of not-existing value_type
+        initialize_update_administration_data() # take this out later, make it a button maybe
+        course_qs = Course.objects.exclude(format='site')
+        result = self.construct.provide_indicator_results(course_qs, self.aggregation_type)
         return result
 
     def get_context_data(self, **kwargs):
         self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
-        self.value_type = self.kwargs.get("value_type")
+        self.aggregation_type = self.kwargs.get("aggregation_type")
         context = super().get_context_data(**kwargs)
-        context['title'] = f'Current {self.value_type} indicator values of construct {self.construct.id} ({self.construct.name})'
+        context['title'] = f'Current {self.aggregation_type} indicator values of construct {self.construct.id} ({self.construct.name})'
         context['indicator_labels'] = list(self.construct.indicator_set.all().values_list('column_label', flat=True))
         return context
 
@@ -91,8 +88,8 @@ class ConstructCalculateListView(TemplateView):
     template_name = "constructs/construct_calculate.html"
 
     def results(self):
-        userid_list = list(MoodleUser.objects.filter(ignore_activity=False).values_list('id', flat=True))
-        result = self.construct.calculate_result(userid_list)
+        course_qs = Course.objects.exclude(format='site')
+        result = self.construct.calculate_result(course_qs)
         return result
 
     def get_context_data(self, **kwargs):
@@ -107,7 +104,8 @@ class ConstructResultsListView(ListView):
 
     def get_queryset(self):
         self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
-        self.construct.save_result(MoodleUser.objects.all())  # take this out later, make it a parameter maybe
+        course_qs = Course.objects.exclude(format='site')
+        self.construct.save_result(course_qs)  # take this out later, make it a button maybe
         queryset = ConstructResult.objects.filter(construct=self.construct).select_related('user')
         return queryset
 
