@@ -18,7 +18,10 @@ class ConstructCreateView(FormView):
     success_url = '..'
 
     def form_valid(self, form):
-        Construct.objects.create(**form.cleaned_data)
+        indicators_qs = form.cleaned_data.pop('indicators', None)
+        instance = Construct.objects.create(**form.cleaned_data)
+        for indicator in indicators_qs:
+            instance.indicators.add(indicator)
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -39,8 +42,11 @@ class ConstructUpdateView(FormView):
         return form_kwargs
 
     def form_valid(self, form):
-        construct = form.save(commit=False)
-        construct.save()
+        indicators_qs = form.cleaned_data.pop('indicators', None)
+        instance = form.save(commit=False)
+        for indicator in indicators_qs:
+            instance.indicators.add(indicator)
+        instance.save()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -80,7 +86,7 @@ class ConstructIndicatorValuesView(TemplateView):
         self.aggregation_type = self.kwargs.get("aggregation_type")
         context = super().get_context_data(**kwargs)
         context['title'] = f'Current {self.aggregation_type} indicator values of construct {self.construct.id} ({self.construct.name})'
-        context['indicator_labels'] = list(self.construct.indicator_set.all().values_list('column_label', flat=True))
+        context['indicator_labels'] = list(self.construct.indicators.all().values_list('column_label', flat=True))
         return context
 
 

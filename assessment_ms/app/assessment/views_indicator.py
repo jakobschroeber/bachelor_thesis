@@ -59,7 +59,7 @@ class IndicatorListView(ListView):
             self.construct = None
             queryset = Indicator.objects.values(*self.columns)
         else:
-            queryset = Indicator.objects.filter(related_construct=self.construct.pk).values(*self.columns)
+            queryset = Indicator.objects.filter(construct__pk=self.construct.pk).values(*self.columns)
         return queryset
 
     def get_context_data(self, **kwargs):

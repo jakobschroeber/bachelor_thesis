@@ -4,6 +4,8 @@
 
 <table>
     <tr>
+        <th>Course ID</th>
+        <th>Course full name</th>
         <th>User ID</th>
         <th>Username</th>
         <th>{{ construct.column_label }}</th>
@@ -12,6 +14,8 @@
     </tr>
     {% for instance in object_list %}
     <tr>
+        <td>{{ instance.course.id }}</td>
+        <td>{{ instance.course.fullname }}</td>
         <td>{{ instance.user.id }}</td>
         <td>{{ instance.user.username }}</td>
         <td>{{ instance.value }}</td>

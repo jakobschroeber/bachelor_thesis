@@ -1,4 +1,5 @@
 from django.db import models
+from .models_indicator import Indicator
 from administration.models import Course, User
 
 from django.db.models import Avg, Max, Min
@@ -11,6 +12,7 @@ from django.utils import timezone
 class Construct(models.Model):
     # primary key field is automatically added
     name                = models.CharField(max_length=100, help_text = 'Construct name')
+    indicators          = models.ManyToManyField(Indicator, through='ConstructIndicatorRelation', blank=True)
     column_label        = models.CharField(max_length=100, help_text = 'Column label in database results')
     description         = models.CharField(max_length=100, blank=True, help_text = 'Description')
     DIFA_reference_id   = models.CharField(max_length=50, blank=True, help_text = 'DIFA ID')
@@ -21,7 +23,7 @@ class Construct(models.Model):
         return f'{self.name}'
 
     def provide_indicator_results(self, course_qs, aggregation_type):
-        indicators = self.indicator_set.all()
+        indicators = self.indicators.all()
         indicator_results = {}
 
         # For each course create entries (courseid, userid) used as keys later
@@ -48,6 +50,7 @@ class Construct(models.Model):
                     stddev = queryset.filter(courseid=course.id).aggregate(StdDev(k3))[f'{k3}__stddev']
                     for entry in queryset.filter(courseid=course.id):
                         indicator_results[(entry[k1], entry[k2])][column_label] = (entry[k3] - avg) / stddev
+                #   todo: provide solution for cases where normalization / standardization results in division by zero
                 else:
                     raise('Unknown aggregation type')
         return indicator_results
@@ -79,6 +82,11 @@ class Construct(models.Model):
             entry.last_time_modified = timezone.now()
             results.append(entry)
         preexisting_results.bulk_update(results, ['value', 'last_time_modified'], batch_size=50)
+
+
+class ConstructIndicatorRelation(models.Model):
+    construct   = models.ForeignKey(Construct, on_delete=models.CASCADE)
+    indicator   = models.ForeignKey(Indicator, on_delete=models.CASCADE)
 
 
 class ConstructResult(models.Model):

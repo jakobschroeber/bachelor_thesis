@@ -1,5 +1,4 @@
 from django.db import models
-from .models_construct import Construct
 from administration.models import Course, User
 
 from types import ModuleType
@@ -9,7 +8,6 @@ from django.utils import timezone
 class Indicator(models.Model):
     #primary key field is automatically added
     name                = models.CharField(max_length=100, help_text = 'Indicator name')
-    related_construct   = models.ForeignKey(Construct, on_delete=models.SET_NULL, blank=True, null=True)
     column_label        = models.CharField(max_length=100, help_text = 'Column label in database results')
     code                = models.TextField(default='# Python code for indicator calculation\n\n')
     description         = models.CharField(max_length=100, blank=True, help_text = 'Description')

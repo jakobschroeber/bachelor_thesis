@@ -1,5 +1,5 @@
 from app.forms import Html5ModelForm
-from django.forms import ModelChoiceField
+from django.forms import ModelMultipleChoiceField, CheckboxSelectMultiple
 from django_ace import AceWidget # https://github.com/django-ace/django-ace
 
 from django.utils.translation import gettext_lazy as _
@@ -9,7 +9,6 @@ from .models_construct import Construct
 
 
 class IndicatorForm(Html5ModelForm):
-    related_construct = ModelChoiceField(queryset=Construct.objects.all(), empty_label='Related construct', label='')
     class Meta:
         model = Indicator
         fields = '__all__'
@@ -31,6 +30,8 @@ class IndicatorForm(Html5ModelForm):
         }
 
 class ConstructForm(Html5ModelForm):
+    indicators = ModelMultipleChoiceField(queryset = Indicator.objects.all(), widget = CheckboxSelectMultiple(),
+                                                label='')
     class Meta:
         model = Construct
         fields = '__all__'
