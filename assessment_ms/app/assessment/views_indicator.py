@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, DeleteView
 
 from administration.signals import initialize_update_administration_data
 
@@ -45,6 +45,21 @@ class IndicatorUpdateView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = f'Update indicator {self.indicator.id} ({self.indicator.name})'
+        return context
+
+
+class IndicatorDeleteView(DeleteView):
+    model = Indicator
+    success_url = '../..'
+    template_name = 'indicators/indicator_delete.html'
+
+    def get_object(self):
+        self.indicator = get_object_or_404(Indicator, id=self.kwargs.get("indicator_id"))
+        return self.indicator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Delete indicator {self.indicator.id} ({self.indicator.name})'
         return context
 
 

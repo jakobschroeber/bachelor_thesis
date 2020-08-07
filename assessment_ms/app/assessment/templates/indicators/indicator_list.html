@@ -13,6 +13,7 @@
         {% for value in instance.values %}<td>{{ value }}</td>{% endfor %}
         <td>
             <a href="{{ instance.id }}/">Update indicator</a><br>
+            <a href="{{ instance.id }}/delete/">Delete indicator</a><br>
             <a href="{{ instance.id }}/calculate/">Calculate original values of indicator</a><br>
             <a href="{{ instance.id }}/results/">Show results from database</a><br>
         </td>

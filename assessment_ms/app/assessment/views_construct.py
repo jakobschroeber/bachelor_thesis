@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template.defaulttags import register
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, DeleteView
 
 from administration.signals import initialize_update_administration_data
 
@@ -52,6 +52,21 @@ class ConstructUpdateView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = f'Update construct {self.obj.id} ({self.obj.name})'
+        return context
+
+
+class ConstructDeleteView(DeleteView):
+    model = Construct
+    success_url = '../..'
+    template_name = 'constructs/construct_delete.html'
+
+    def get_object(self):
+        self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
+        return self.construct
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Delete construct {self.construct.id} ({self.construct.name})'
         return context
 
 

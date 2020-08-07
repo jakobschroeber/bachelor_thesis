@@ -18,39 +18,32 @@ class Indicator(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    def calculate_result(self, course_qs):
+    def calculate_result(self, course_qs): # todo: remove parameter course_qs if no filter is required
         # adapted from https://stackoverflow.com/questions/5362771/how-to-load-a-module-from-code-in-a-string
         mod = ModuleType(f"indicator_{self.id}", f"Code for calculation of indicator with pk {self.id}")
+        mod.course_qs = course_qs
         exec(self.code, mod.__dict__)
-        # user ids are passed in as list instead of queryset because Django does not allow cross-db subqueries
-        raw_result = mod.queryset.all()
-        # validation of queryset needed here: has to be in the format user(int), result(float) - 2 keys only
-        # additional validation needed: At least one result
-        result = mod.queryset.none()
-        for course in course_qs:
-            result |= raw_result.filter(courseid=course.pk, userid__in=course.get_users_for_assessment())
 
-        #     option: don't take out results for users with ignore_activity, just set them to None
+        # todo: validation of dict_result needed here:
+        #   - column headers have to be 'courseid', 'userid', 'value' - 3 keys only
+        #   - at least two different results per course, otherwise exclude course
 
-        # column headers are arbitrary, will be changed subsequently
-        return result
+        return mod.dict_result
 
     def save_result(self, course_qs):
         preexisting_results = IndicatorResult.objects.filter(indicator=self)
         for course in course_qs:
             preexisting_results.filter(course=course.pk).exclude(user__in=course.get_users_for_assessment()).delete()
         raw_results = self.calculate_result(course_qs)
-        # assumption here is that calculate_result() delivers validated list of dictionaries [{courseid: x, userid: y,
-        # value: z}]
-        (k1, k2, k3) = raw_results[0]
+
         results = []
         for result in raw_results:
             entry, created = preexisting_results.get_or_create(
                 indicator = self,
-                course = Course.objects.get(pk=result.get(k1)),
-                user = User.objects.get(pk=result.get(k2))
+                course = Course.objects.get(pk=result.get('courseid')),
+                user = User.objects.get(pk=result.get('userid'))
                 )
-            entry.value = result.get(k3)
+            entry.value = result.get('value')
             entry.last_time_modified = timezone.now()
             results.append(entry)
         preexisting_results.bulk_update(results, ['value', 'last_time_modified'], batch_size=50)
