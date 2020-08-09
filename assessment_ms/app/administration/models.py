@@ -6,8 +6,6 @@ from django.db import connection
 
 
 class User(AbstractMoodleUser):
-    ignore_activity = models.BooleanField(default=False)
-
     class Meta:
         ordering = ["id"]
 
@@ -45,7 +43,6 @@ class Context(AbstractMoodleContext):
 
 
 class Role(AbstractMoodleRole):
-    ignore_activity = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["id"]

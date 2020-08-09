@@ -12,7 +12,12 @@
     <tr>
         {% for value in instance.values %}<td>{{ value }}</td>{% endfor %}
         <td>
-            <a href="{{ instance.ID }}/roleassignments/">Show assigned users</a>
+            {% if instance.Status == 'On' %}
+                <a href="{{ instance.ID }}/">Disable assessment</a><br>
+            {% else %}
+                <a href="{{ instance.ID }}/">Enable assessment</a><br>
+            {% endif %}
+            <a href="{{ instance.ID }}/roleassignments/">Show assigned users</a><br>
         </td>
     </tr>
     {% endfor %}

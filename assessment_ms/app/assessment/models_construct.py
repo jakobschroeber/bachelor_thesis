@@ -22,7 +22,8 @@ class Construct(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    def provide_indicator_results(self, course_qs, aggregation_type):
+    def provide_indicator_results(self, aggregation_type, courses=Course.objects.exclude(format='site')):
+        course_qs = courses.filter(ignore_activity=False)
         indicators = self.indicators.all()
         indicator_results = {}
 
@@ -34,33 +35,33 @@ class Construct(models.Model):
         # for each indicator, per course: calculate min and max and write indicator values into dictionary
         for indicator in indicators:
             column_label = indicator.column_label
-            queryset = IndicatorResult.objects.filter(course__in=course_qs, indicator=indicator).values('course',
-                                                                                                        'user', 'value')
+            queryset = IndicatorResult.objects.filter(
+                course__in=course_qs, indicator=indicator).values('course','user', 'value')
             for course in course_qs:
                 if (aggregation_type == 'original'):
-                    for entry in queryset.filter(course=course.id):
+                    for entry in queryset.filter(course=course.id, user__in=course.get_users_for_assessment()):
                         indicator_results[(entry['course'], entry['user'])][column_label] = entry['value']
                 elif (aggregation_type == 'normalized'):
                     max = queryset.filter(course=course.id).aggregate(Max('value'))['value__max']
                     min = queryset.filter(course=course.id).aggregate(Min('value'))['value__min']
                     range = max - min
-                    if (range != 0):
-                        for entry in queryset.filter(course=course.id):
-                            indicator_results[(entry['course'], entry['user'])][column_label] = (entry['value'] - min) / (range)
+                    for entry in queryset.filter(course=course.id, user__in=course.get_users_for_assessment()):
+                        indicator_results[(entry['course'], entry['user'])][column_label] = \
+                            (entry['value'] - min) / (range) if (range != 0) else 0.0
                     # else:
                     #     raise Exception(f'range of values for indicator {indicator.id} ({indicator.name}) is zero')
                 elif (aggregation_type == 'standardized'):
                     avg = queryset.filter(course=course.id).aggregate(Avg('value'))['value__avg']
                     stddev = queryset.filter(course=course.id).aggregate(StdDev('value'))['value__stddev']
-                    for entry in queryset.filter(course=course.id):
-                        indicator_results[(entry['courseid'], entry['userid'])][column_label] = (entry['value'] - avg) / stddev
-                #   todo: provide solution for cases where normalization / standardization results in division by zero
+                    for entry in queryset.filter(course=course.id, user__in=course.get_users_for_assessment()):
+                        indicator_results[(entry['course'], entry['user'])][column_label] = \
+                            (entry['value'] - avg) / stddev if (stddev != 0) else 0.0
                 else:
                     raise('Unknown aggregation type')
         return indicator_results
 
-    def calculate_result(self, course_qs):
-        indicator_results = self.provide_indicator_results(course_qs, 'normalized') # todo: get aggregation_type from self
+    def calculate_result(self, courses=Course.objects.exclude(format='site')):
+        indicator_results = self.provide_indicator_results('normalized', courses) # todo: get aggregation_type from self
         result = [{
             'courseid': courseid,
             'userid': userid,
@@ -68,11 +69,14 @@ class Construct(models.Model):
         } for (courseid, userid) in indicator_results if any(indicator_results[(courseid, userid)])]
         return result
 
-    def save_result(self, course_qs):
+    def save_result(self, courses=Course.objects.exclude(format='site')):
         preexisting_results = ConstructResult.objects.filter(construct=self)
-        for course in course_qs:
-            preexisting_results.filter(course=course.pk).exclude(user__in=course.get_users_for_assessment()).delete()
-        raw_results = self.calculate_result(course_qs)
+        for course in courses:
+            if course.ignore_activity:
+                preexisting_results.filter(course=course.pk).delete()
+            else:
+                preexisting_results.filter(course=course.pk).exclude(user__in=course.get_users_for_assessment()).delete()
+        raw_results = self.calculate_result(courses)
 
         results = []
         for result in raw_results:

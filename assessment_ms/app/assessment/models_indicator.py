@@ -18,8 +18,9 @@ class Indicator(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    def calculate_result(self, course_qs): # todo: remove parameter course_qs if no filter is required
+    def calculate_result(self, courses=Course.objects.exclude(format='site')):
         # adapted from https://stackoverflow.com/questions/5362771/how-to-load-a-module-from-code-in-a-string
+        course_qs = courses.filter(ignore_activity=False)
         mod = ModuleType(f"indicator_{self.id}", f"Code for calculation of indicator with pk {self.id}")
         mod.course_qs = course_qs
         exec(self.code, mod.__dict__)
@@ -30,11 +31,14 @@ class Indicator(models.Model):
 
         return mod.dict_result
 
-    def save_result(self, course_qs):
+    def save_result(self, courses=Course.objects.exclude(format='site')):
         preexisting_results = IndicatorResult.objects.filter(indicator=self)
-        for course in course_qs:
-            preexisting_results.filter(course=course.pk).exclude(user__in=course.get_users_for_assessment()).delete()
-        raw_results = self.calculate_result(course_qs)
+        for course in courses:
+            if course.ignore_activity:
+                preexisting_results.filter(course=course.pk).delete()
+            else:
+                preexisting_results.filter(course=course.pk).exclude(user__in=course.get_users_for_assessment()).delete()
+        raw_results = self.calculate_result(courses)
 
         results = []
         for result in raw_results:

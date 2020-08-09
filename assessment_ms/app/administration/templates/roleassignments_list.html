@@ -1,6 +1,12 @@
 {% extends 'assessment_base.html' %}
 
 {% block content %}
+
+<form type="get" action="." style="margin: 0">
+    <input  id="user_search" type="text" name="user_search"  placeholder="Search User ID ..." value={{ query_term}}>
+    <button id="search_submit" type="submit" >Submit</button>
+</form>
+<br>
 <table>
     {% for instance in object_list %}
     {% if forloop.first %}
@@ -12,14 +18,40 @@
     <tr>
         {% for value in instance.values %}<td>{{ value }}</td>{% endfor %}
         <td>
-            {% if instance.Ignore == False %}
-                <a href="{{ instance.ID }}/">Disable assessment</a>
+            {% if instance.Status == 'On' %}
+                <a href="{{ instance.Assignment }}/">Disable assessment</a>
             {% else %}
-                <a href="{{ instance.ID }}/">Enable assessment</a>
+                <a href="{{ instance.Assignment }}/">Enable assessment</a>
             {% endif %}
         </td>
     </tr>
     {% endfor %}
 
 </table>
+
+<br>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; First page</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Previous page</a>
+        {% else %}
+            &laquo; First page
+            Previous page
+        {% endif %}
+
+        <span class="current">
+            - Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} -
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next page</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Last page &raquo;</a>
+        {% else %}
+            Next page
+            Last page &raquo;
+        {% endif %}
+    </span>
+</div>
 {% endblock %}

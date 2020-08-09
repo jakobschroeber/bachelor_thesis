@@ -92,8 +92,7 @@ class ConstructIndicatorValuesView(TemplateView):
 
     def results(self):
         initialize_update_administration_data() # take this out later, make it a button maybe
-        course_qs = Course.objects.exclude(format='site')
-        result = self.construct.provide_indicator_results(course_qs, self.aggregation_type)
+        result = self.construct.provide_indicator_results(self.aggregation_type)
         return result
 
     def get_context_data(self, **kwargs):
@@ -109,8 +108,7 @@ class ConstructCalculateListView(TemplateView):
     template_name = "constructs/construct_calculate.html"
 
     def results(self):
-        course_qs = Course.objects.exclude(format='site')
-        result = self.construct.calculate_result(course_qs)
+        result = self.construct.calculate_result()
         return result
 
     def get_context_data(self, **kwargs):
@@ -125,8 +123,7 @@ class ConstructResultsListView(ListView):
 
     def get_queryset(self):
         self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
-        course_qs = Course.objects.exclude(format='site')
-        self.construct.save_result(course_qs)  # take this out later, make it a button maybe
+        self.construct.save_result()  # take this out later, make it a button maybe
         queryset = ConstructResult.objects.filter(construct=self.construct).select_related('user')
         return queryset
 
