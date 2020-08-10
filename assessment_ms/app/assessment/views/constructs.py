@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.template.defaulttags import register
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
@@ -6,9 +6,8 @@ from django.views.generic.edit import FormView, DeleteView
 
 from administration.signals import initialize_update_administration_data
 
-from .models_construct import Construct, ConstructResult
-from administration.models import Course, User
-from .forms import ConstructForm
+from assessment.models.constructs import Construct, ConstructResult
+from assessment.forms import ConstructForm
 
 
 

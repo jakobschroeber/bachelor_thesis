@@ -1,5 +1,5 @@
 from django.db import models
-from .models_indicator import Indicator, IndicatorResult
+from assessment.models.indicators import Indicator, IndicatorResult
 from administration.models import Course, User
 
 from django.db.models import Avg, Max, Min
@@ -78,17 +78,16 @@ class Construct(models.Model):
                 preexisting_results.filter(course=course.pk).exclude(user__in=course.get_users_for_assessment()).delete()
         raw_results = self.calculate_result(courses)
 
-        results = []
-        for result in raw_results:
-            entry, created = preexisting_results.get_or_create(
+        results = [
+            ConstructResult(
                 construct = self,
-                course=Course.objects.get(pk=result.get('courseid')),
-                user = User.objects.get(pk=result.get('userid'))
-                )
-            entry.value = result.get(self.column_label)
-            entry.last_time_modified = timezone.now()
-            results.append(entry)
-        preexisting_results.bulk_update(results, ['value', 'last_time_modified'], batch_size=50)
+                course=Course.objects.get(pk=entry.get('courseid')),
+                user = User.objects.get(pk=entry.get('userid')),
+                value = entry.get(self.column_label)
+            )
+            for entry in raw_results
+        ]
+        ConstructResult.objects.bulk_create(results, batch_size=200)
 
 
 class ConstructIndicatorRelation(models.Model):
@@ -102,11 +101,9 @@ class ConstructResult(models.Model):
     user                = models.ForeignKey(User, on_delete=models.CASCADE)
     value               = models.FloatField(null=True)
     time_created        = models.DateTimeField(auto_now_add=True)
-    last_time_modified  = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["construct", "course", "user"]
-        unique_together = (("construct", "course", "user"),)
 
     def __str__(self):
         return f'{self.construct.name}: {self.user.id}'

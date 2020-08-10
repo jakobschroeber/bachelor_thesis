@@ -1,14 +1,13 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, DeleteView
 
 from administration.signals import initialize_update_administration_data
 
-from .models_indicator import Indicator, IndicatorResult
-from .models_construct import Construct
-from administration.models import Course, User
-from .forms import IndicatorForm
+from assessment.models.indicators import Indicator, IndicatorResult
+from assessment.models.constructs import Construct
+from assessment.forms import IndicatorForm
 
 
 class IndicatorCreateView(FormView):

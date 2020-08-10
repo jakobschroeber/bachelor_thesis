@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models_indicator import Indicator, IndicatorResult
-from .models_construct import Construct, ConstructResult
+from assessment.models.indicators import Indicator, IndicatorResult
+from assessment.models.constructs import Construct, ConstructResult
 
 admin.site.register(Indicator)
 admin.site.register(IndicatorResult)

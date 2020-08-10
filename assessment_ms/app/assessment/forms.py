@@ -4,8 +4,8 @@ from django_ace import AceWidget # https://github.com/django-ace/django-ace
 
 from django.utils.translation import gettext_lazy as _
 
-from .models_indicator import Indicator
-from .models_construct import Construct
+from assessment.models.indicators import Indicator
+from assessment.models.constructs import Construct
 
 
 class IndicatorForm(Html5ModelForm):

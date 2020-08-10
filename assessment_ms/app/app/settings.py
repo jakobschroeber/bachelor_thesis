@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'app_db_20200806a.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'app_db_20200810.sqlite3'),
     },
     'moodle': {
         'NAME': 'moodle',
@@ -96,6 +96,8 @@ DATABASES = {
 }
 
 DATABASE_ROUTERS = ['app.db.Router']
+
+FIXTURE_DIRS = ['./fixtures/']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

@@ -1,9 +1,9 @@
 from django.urls import path
 
-from .views_indicator import IndicatorListView, IndicatorCreateView, IndicatorDeleteView, IndicatorUpdateView, \
+from assessment.views.indicators import IndicatorListView, IndicatorCreateView, IndicatorDeleteView, IndicatorUpdateView, \
     IndicatorCalculateListView, IndicatorResultsListView
 
-from .views_construct import ConstructListView, ConstructCreateView, ConstructDeleteView, ConstructUpdateView, \
+from assessment.views.constructs import ConstructListView, ConstructCreateView, ConstructDeleteView, ConstructUpdateView, \
     ConstructCalculateListView, ConstructIndicatorValuesView, ConstructResultsListView
 
 

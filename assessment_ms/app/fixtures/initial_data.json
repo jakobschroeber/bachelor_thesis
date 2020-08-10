@@ -1,0 +1,35 @@
+[
+{
+  "model": "assessment.indicator",
+  "pk": 1,
+  "fields": {
+    "name": "Number of Forum Access",
+    "column_label": "num(accesses to foren)",
+    "code": "# def_num of mod_forum in logstore for one user\r\n\r\nfrom administration.models import Course\r\nfrom django.db import connections\r\n\r\ndict_result = []\r\n\r\nwith connections['moodle'].cursor() as cursor:\r\n    query_string = \"SELECT userid FROM m_logstore_standard_log where component = 'mod_forum' and courseid = %s and userid = %s\"\r\n    for course in course_qs:\r\n      users = course.get_users_for_assessment()\r\n      for user in users:\r\n        cursor.execute(query_string, (course.id, user))\r\n        value = len(cursor.fetchall())\r\n        dict_result.append({'courseid': course.id, 'userid': user, 'value': value})",
+    "description": "",
+    "DIFA_reference_id": "1018",
+    "time_created": "2020-08-06T10:17:00.348Z",
+    "last_time_modified": "2020-08-07T13:24:59.611Z"
+  }
+},
+{
+  "model": "assessment.construct",
+  "pk": 1,
+  "fields": {
+    "name": "Learning Engagement",
+    "column_label": "LE",
+    "description": "This is LE",
+    "DIFA_reference_id": "",
+    "time_created": "2020-08-06T10:25:43.761Z",
+    "last_time_modified": "2020-08-09T15:55:28.739Z"
+  }
+},
+{
+  "model": "assessment.constructindicatorrelation",
+  "pk": 2,
+  "fields": {
+    "construct": 1,
+    "indicator": 1
+  }
+}
+]
