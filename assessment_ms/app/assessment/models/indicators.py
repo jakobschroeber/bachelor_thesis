@@ -2,14 +2,14 @@ from django.db import models
 from administration.models import Course, User
 
 from types import ModuleType
-from django.utils import timezone
 
 
 class Indicator(models.Model):
     #primary key field is automatically added
     name                = models.CharField(max_length=100, help_text = 'Indicator name')
-    column_label        = models.CharField(max_length=100, help_text = 'Column label in database results')
+    column_label        = models.CharField(max_length=100, help_text = 'Column label')
     code                = models.TextField(default='# Python code for indicator calculation\n\n')
+    minutes             = models.BigIntegerField(help_text = 'New values every ... minutes')
     description         = models.CharField(max_length=100, blank=True, help_text = 'Description')
     DIFA_reference_id   = models.CharField(max_length=50, blank=True, help_text = 'DIFA ID')
     time_created        = models.DateTimeField(auto_now_add=True, help_text = 'Created')
@@ -18,11 +18,12 @@ class Indicator(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    def calculate_result(self, courses=Course.objects.exclude(format='site')):
+    def calculate_result(self, courses=Course.objects.exclude(format='site'), minutes=518400):
         # adapted from https://stackoverflow.com/questions/5362771/how-to-load-a-module-from-code-in-a-string
         course_qs = courses.filter(ignore_activity=False)
         mod = ModuleType(f"indicator_{self.id}", f"Code for calculation of indicator with pk {self.id}")
         mod.course_qs = course_qs
+        mod.minutes = minutes
         exec(self.code, mod.__dict__)
 
         # todo: validation of dict_result needed here:
@@ -31,14 +32,15 @@ class Indicator(models.Model):
 
         return mod.dict_result
 
-    def save_result(self, courses=Course.objects.exclude(format='site')):
+
+    def save_result(self, courses=Course.objects.exclude(format='site'), minutes=518400):
         preexisting_results = IndicatorResult.objects.filter(indicator=self)
         for course in courses:
             if course.ignore_activity:
                 preexisting_results.filter(course=course.pk).delete()
             else:
                 preexisting_results.filter(course=course.pk).exclude(user__in=course.get_users_for_assessment()).delete()
-        raw_results = self.calculate_result(courses)
+        raw_results = self.calculate_result(courses, minutes)
 
         results = [
             IndicatorResult(

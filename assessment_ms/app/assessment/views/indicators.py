@@ -93,7 +93,7 @@ class IndicatorCalculateListView(TemplateView):
 
     def results(self):
         initialize_update_administration_data() # take this out later, make it a button maybe
-        raw_result = self.indicator.calculate_result()
+        raw_result = self.indicator.calculate_result(minutes=self.indicator.minutes)
         (k1, k2, k3) = raw_result[0]
         column_label = self.indicator.column_label
         result = [{'Course ID': x[k1], 'User ID': x[k2], column_label: x[k3]} for x in raw_result]
@@ -111,7 +111,6 @@ class IndicatorResultsListView(ListView):
 
     def get_queryset(self):
         self.indicator = get_object_or_404(Indicator, id=self.kwargs.get("indicator_id"))
-        self.indicator.save_result()  # take this out later, make it a button maybe
         queryset = IndicatorResult.objects.filter(indicator=self.indicator).select_related('user')
         return queryset
 

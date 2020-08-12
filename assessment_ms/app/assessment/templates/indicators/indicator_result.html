@@ -10,7 +10,6 @@
         <th>User name</th>
         <th>{{ indicator.column_label }}</th>
         <th>Created</th>
-        <th>Last modified</th>
     </tr>
     {% for instance in object_list %}
     <tr>
@@ -20,7 +19,6 @@
         <td>{{ instance.user.username }}</td>
         <td>{{ instance.value }}</td>
         <td>{{ instance.time_created }}</td>
-        <td>{{ instance.last_time_modified }}</td>
     </tr>
     {% endfor %}
 

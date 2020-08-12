@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_ace',
+    'django_celery_beat',
 
     #own
     'data_source',
@@ -84,7 +85,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'app_db_20200810.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'app_db_20200812.sqlite3'),
     },
     'moodle': {
         'NAME': 'moodle',

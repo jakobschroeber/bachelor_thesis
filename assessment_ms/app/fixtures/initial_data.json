@@ -5,11 +5,12 @@
   "fields": {
     "name": "Number of Forum Access",
     "column_label": "num(accesses to foren)",
-    "code": "# def_num of mod_forum in logstore for one user\r\n\r\nfrom administration.models import Course\r\nfrom django.db import connections\r\n\r\ndict_result = []\r\n\r\nwith connections['moodle'].cursor() as cursor:\r\n    query_string = \"SELECT userid FROM m_logstore_standard_log where component = 'mod_forum' and courseid = %s and userid = %s\"\r\n    for course in course_qs:\r\n      users = course.get_users_for_assessment()\r\n      for user in users:\r\n        cursor.execute(query_string, (course.id, user))\r\n        value = len(cursor.fetchall())\r\n        dict_result.append({'courseid': course.id, 'userid': user, 'value': value})",
+    "code": "# def_num of mod_forum in logstore for one user\r\n\r\nfrom administration.models import Course\r\nfrom django.db import connections\r\n\r\ndict_result = []\r\n\r\nwith connections['moodle'].cursor() as cursor:\r\n    query_string = \"SELECT userid FROM m_logstore_standard_log where component = 'mod_forum' and courseid = %s and userid = %s and timecreated > unix_timestamp(NOW() - INTERVAL %s MINUTE)\"\r\n    for course in course_qs:\r\n      users = course.get_users_for_assessment()\r\n      for user in users:\r\n        cursor.execute(query_string, (course.id, user, minutes))\r\n        value = len(cursor.fetchall())\r\n        dict_result.append({'courseid': course.id, 'userid': user, 'value': value})",
+	"minutes": 5,
     "description": "",
     "DIFA_reference_id": "1018",
-    "time_created": "2020-08-06T10:17:00.348Z",
-    "last_time_modified": "2020-08-07T13:24:59.611Z"
+    "time_created": "2020-08-11T13:06:09.772Z",
+    "last_time_modified": "2020-08-11T13:06:09.772Z"
   }
 },
 {
@@ -18,18 +19,101 @@
   "fields": {
     "name": "Learning Engagement",
     "column_label": "LE",
-    "description": "This is LE",
+    "description": "",
     "DIFA_reference_id": "",
-    "time_created": "2020-08-06T10:25:43.761Z",
-    "last_time_modified": "2020-08-09T15:55:28.739Z"
+    "time_created": "2020-08-11T13:06:25.655Z",
+    "last_time_modified": "2020-08-11T13:06:25.655Z"
   }
 },
 {
   "model": "assessment.constructindicatorrelation",
-  "pk": 2,
+  "pk": 1,
   "fields": {
     "construct": 1,
     "indicator": 1
+  }
+},
+{
+  "model": "django_celery_beat.intervalschedule",
+  "pk": 1,
+  "fields": {
+    "every": 1,
+    "period": "minutes"
+  }
+},
+{
+  "model": "django_celery_beat.crontabschedule",
+  "pk": 1,
+  "fields": {
+    "minute": "0",
+    "hour": "4",
+    "day_of_week": "*",
+    "day_of_month": "*",
+    "month_of_year": "*",
+    "timezone": "UTC"
+  }
+},
+{
+  "model": "django_celery_beat.periodictasks",
+  "pk": 1,
+  "fields": {
+    "last_update": "2020-08-12T15:30:55.716Z"
+  }
+},
+{
+  "model": "django_celery_beat.periodictask",
+  "pk": 1,
+  "fields": {
+    "name": "celery.backend_cleanup",
+    "task": "celery.backend_cleanup",
+    "interval": null,
+    "crontab": 1,
+    "solar": null,
+    "clocked": null,
+    "args": "[]",
+    "kwargs": "{}",
+    "queue": null,
+    "exchange": null,
+    "routing_key": null,
+    "headers": "{}",
+    "priority": null,
+    "expires": null,
+    "expire_seconds": 43200,
+    "one_off": false,
+    "start_time": null,
+    "enabled": true,
+    "last_run_at": null,
+    "total_run_count": 0,
+    "date_changed": "2020-08-12T15:30:55.737Z",
+    "description": ""
+  }
+},
+{
+  "model": "django_celery_beat.periodictask",
+  "pk": 2,
+  "fields": {
+    "name": "Save results of indicator 1 to db",
+    "task": "assessment.tasks.save_indicator_results",
+    "interval": 1,
+    "crontab": null,
+    "solar": null,
+    "clocked": null,
+    "args": "[]",
+    "kwargs": "{}",
+    "queue": null,
+    "exchange": null,
+    "routing_key": null,
+    "headers": "{}",
+    "priority": null,
+    "expires": null,
+    "expire_seconds": null,
+    "one_off": false,
+    "start_time": "2020-08-12T08:58:54Z",
+    "enabled": true,
+    "last_run_at": "2020-08-12T16:51:57.527Z",
+    "total_run_count": 199,
+    "date_changed": "2020-08-12T16:52:57.547Z",
+    "description": ""
   }
 }
 ]

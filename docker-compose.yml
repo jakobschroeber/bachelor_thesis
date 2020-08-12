@@ -15,9 +15,23 @@ services:
     networks:
       mdl_network: 
         ipv4_address: 172.20.0.2
-      xapi_network:
-        ipv4_address: 172.22.0.4
-    
+      celery_network:
+        ipv4_address: 172.23.0.2
+  
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: "rabbitmq"
+    volumes:
+      - ./storage/rabbitmq/rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+    networks:
+      celery_network:
+        ipv4_address: 172.23.0.3
+        
   apache:
     image: "moodlehq/moodle-php-apache:${APACHE_PHP_VERSION}"
     depends_on:
@@ -161,3 +175,7 @@ networks:
     ipam:
       config:
         - subnet: 172.22.0.0/16
+  celery_network:
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16

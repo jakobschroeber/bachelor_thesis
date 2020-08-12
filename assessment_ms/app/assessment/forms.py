@@ -1,5 +1,5 @@
 from app.forms import Html5ModelForm
-from django.forms import ModelMultipleChoiceField, CheckboxSelectMultiple
+from django.forms import ModelMultipleChoiceField, CheckboxSelectMultiple, TextInput
 from django_ace import AceWidget # https://github.com/django-ace/django-ace
 
 from django.utils.translation import gettext_lazy as _
@@ -19,7 +19,8 @@ class IndicatorForm(Html5ModelForm):
                           width='90%',
                           usesofttabs=True,
                           tabsize=2,
-                          minlines=20)
+                          minlines=20),
+            'minutes': TextInput
         }
         labels = {
             'name': _(''),
@@ -27,6 +28,7 @@ class IndicatorForm(Html5ModelForm):
             'code': _(''),
             'description': _(''),
             'DIFA_reference_id': _(''),
+            'minutes': _('')
         }
 
 class ConstructForm(Html5ModelForm):
