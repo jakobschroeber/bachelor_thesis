@@ -39,11 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_ace',
     'django_celery_beat',
+    'django_cassandra_engine',
 
     #own
     'data_source',
     'administration',
     'assessment',
+    'export',
 ]
 
 MIDDLEWARE = [
@@ -82,17 +84,41 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 # adapted from https://dev.mysql.com/doc/connector-python/en/connector-python-django-backend.html
 
+from cassandra import ConsistencyLevel
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'app_db_20200812.sqlite3'),
     },
     'moodle': {
-        'NAME': 'moodle',
         'ENGINE': 'mysql.connector.django',
+        'NAME': 'moodle',
         'HOST': '172.20.0.4',
         'USER': 'assessment_ms',
         'PASSWORD': 'superpriv8'
+    },
+    'cassandra': {
+         'ENGINE': 'django_cassandra_engine',
+         'NAME': 'assessment',
+         'TEST_NAME': 'test_db',
+         'HOST': '172.24.0.4',
+         'OPTIONS': {
+             'replication': {
+                 'strategy_class': 'SimpleStrategy',
+                 'replication_factor': 1
+             },
+            'connection': {
+                'consistency': ConsistencyLevel.LOCAL_ONE,
+                'retry_connect': True
+                # + All connection options for cassandra.cluster.Cluster()
+            },
+            'session': {
+                'default_timeout': 10,
+                'default_fetch_size': 10000
+                # + All options for cassandra.cluster.Session()
+            }
+         }
     }
 }
 

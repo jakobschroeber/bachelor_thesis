@@ -60,6 +60,7 @@ class IndicatorResult(models.Model):
     user                = models.ForeignKey(User, on_delete=models.CASCADE)
     value               = models.FloatField(null=True)
     time_created        = models.DateTimeField(auto_now_add=True)
+    exported            = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["indicator", "course", "user"]

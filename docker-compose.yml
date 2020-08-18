@@ -1,11 +1,15 @@
 version: "3.2"
 
 services:
-
   assessment_ms:
     build:
       context: ./assessment_ms
     image: assessment_ms:1.0
+    container_name: assessment_ms
+    depends_on:
+      - mysql
+      - cassandra_cql
+      - cassandra
     ports:
       - "8000:8000"
     volumes:
@@ -17,9 +21,12 @@ services:
         ipv4_address: 172.20.0.2
       celery_network:
         ipv4_address: 172.23.0.2
+      cassandra_network:
+        ipv4_address: 172.24.0.2
   
   rabbitmq:
     image: "rabbitmq:3-management"
+    container_name: rabbitmq
     hostname: "rabbit"
     ports:
       - "15672:15672"
@@ -34,8 +41,9 @@ services:
         
   apache:
     image: "moodlehq/moodle-php-apache:${APACHE_PHP_VERSION}"
+    container_name: apache
     depends_on:
-      - db
+      - mysql
     volumes:
       - "${MOODLE_DIRECTORY}:/var/www/html"
       - "${MOODLEDATA_PERSISTANCE}:/var/www/moodledata:rw"
@@ -49,8 +57,9 @@ services:
     ports:
       - "${MOODLE_WEB_PORT}:80"
       
-  db:
+  mysql:
     image: mysql:5
+    container_name: mysql
     volumes:
       - "${MYSQL_PERSISTANCE}:/var/lib/mysql"
     command: >
@@ -66,9 +75,29 @@ services:
         ipv4_address: 172.20.0.4
     ports:
       - "${MYSQL_HOST_PORT}:3306"
+        
+  cassandra_cql:
+    image: cassandra:2.1
+    container_name: cassandra_cql
+    command: cqlsh cassandra
+    networks:
+      cassandra_network:
+        ipv4_address: 172.24.0.3
       
+  cassandra:
+    image: cassandra:2.1
+    container_name: cassandra
+    ports:
+      - "9042:9042"
+    volumes:
+      - ./storage/cassandra:/var/lib/cassandra
+    networks:
+      cassandra_network:
+        ipv4_address: 172.24.0.4
+  
   mongodb:
     image: mongo:4.0
+    container_name: ll_mongodb
     # We use WiredTiger in all environments. In development environments we use small files
     # to conserve disk space, and disable the journal for a minor performance gain.
     # See https://docs.mongodb.com/v3.0/reference/program/mongod/#options for complete details.
@@ -78,6 +107,7 @@ services:
 
   mailcatcher:
     image: sj26/mailcatcher:latest
+    container_name: ll_mailcatcher
     ports:
       - 1080:1080
     networks:
@@ -85,11 +115,13 @@ services:
 
   redis:
     image: redis:4-alpine
+    container_name: ll_redis
     networks:
       - ll_network
 
   xapi:
     image: fundocker/xapi-service:v3.6.0
+    container_name: ll_xapi
     environment:
       - MONGO_URL=mongodb://mongodb:27017/learninglocker_v2
       - REDIS_URL=redis://redis:6379/0
@@ -104,6 +136,7 @@ services:
 
   api:
     image: fundocker/learninglocker:latest
+    container_name: ll_api
     env_file:
       - env.d/learninglocker
     expose:
@@ -120,6 +153,7 @@ services:
 
   ui:
     image: fundocker/learninglocker:latest
+    container_name: ll_ui
     env_file:
       - env.d/learninglocker
     volumes:
@@ -136,6 +170,7 @@ services:
 
   worker:
     image: fundocker/learninglocker:latest
+    container_name: ll_worker
     env_file:
       - env.d/learninglocker
     volumes:
@@ -150,6 +185,7 @@ services:
 
   nginx:
     image: nginx:1.15
+    container_name: ll_nginx
     env_file:
       - env.d/nginx
     volumes:
@@ -179,3 +215,7 @@ networks:
     ipam:
       config:
         - subnet: 172.23.0.0/16
+  cassandra_network:
+    ipam:
+      config:
+        - subnet: 172.24.0.0/16

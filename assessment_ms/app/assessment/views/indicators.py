@@ -101,6 +101,10 @@ class IndicatorCalculateListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         self.indicator = get_object_or_404(Indicator, id=self.kwargs.get("indicator_id"))
+
+        from export import tasks
+        tasks.export_indicator_results()
+
         context = super().get_context_data(**kwargs)
         context['title'] = f'Current values of indicator {self.indicator.id} ({self.indicator.name})'
         return context
