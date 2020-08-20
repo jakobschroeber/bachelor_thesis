@@ -4,25 +4,25 @@ Assessment MS is a Docker-based assessment microservice for Moodle Learning Mana
 
 ## Installation
 
-1. Open a new terminal window, and change the directory to where the installation will be
+1. Open a new terminal window, and change to the location where you want the installation directory to be
 
 ```bash
-cd Drive:/my/installation/directory
+cd Drive:/my/location
 ```
 
-2. Clone GitHub repository into that directory
+2. Clone GitHub repository into that location
 
 ```bash
 git clone https://github.com/jakobschroeber/bachelor_thesis.git
 ```
 
-3. Start building images and run docker-compose setup
+3. Open a new terminal window, change to the installation folder "Drive:/my/location/bachelor_thesis" and start building images and run docker-compose setup
 
 ```bash
 docker-compose up -d
 ```
 
-4. Wait for Moodle instance to become available at http://localhost:10080 (this may take up to 30 minutes)
+4. Wait for Moodle instance to become available at http://localhost:10080 (this may take up to 30 minutes the first time you run the docker-compose setup because Moodle installation takes some time)
 
 5. Use the [default](https://hub.docker.com/r/bitnami/moodle/) MOODLE_USERNAME 'user' and default MOODLE_PASSWORD 'bitnami' to populate the Moodle instance with courses and users (for example, by creating a backup file of a course in the [Mount Orange](https://school.moodledemo.net/) school demo and restoring it inside your Moodle instance.
 
@@ -52,13 +52,13 @@ docker exec assessment_ms sh -c "python manage.py sync_cassandra"
 docker exec assessment_ms sh -c "python manage.py loaddata initial_data.json"
 ```
 
-10. Open a new terminal window, change to the installation directory and start celery worker in order to carry out periodic assessments and exports
+10. Open a new terminal window, change to the installation folder "Drive:/my/location/bachelor_thesis" and start celery worker in order to carry out periodic assessments and exports
 
 ```bash
 docker exec assessment_ms sh -c "celery -A app worker -l info"
 ```
 
-11. Open a new terminal window, change to the installation directory and start celery-beat in order to provide celery with task messages
+11. Open a new terminal window, change to the installation folder "Drive:/my/location/bachelor_thesis" and start celery-beat in order to provide celery with task messages
 
 ```bash
 docker exec assessment_ms sh -c "celery -A app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
@@ -73,7 +73,7 @@ docker exec assessment_ms sh -c "celery -A app beat -l info --scheduler django_c
 15. The settings of when assessment results are exported and when already exported assessment results are deleted can be changed at http://localhost:8000/admin ("Periodic tasks"), in order to access it you need to create a Django admin account
 
 ```bash
-docker exec -it <CONTAINER ID of assessment_ms container> python manage.py createsuperuser
+docker exec -it assesssment_ms python manage.py createsuperuser
 ```
 
 

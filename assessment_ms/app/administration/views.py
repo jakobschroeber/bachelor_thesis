@@ -26,7 +26,7 @@ class CourseListView(ListView):
         return dictfetchall
 
     def get_context_data(self, **kwargs):
-        initialize_update_administration_data() # take this out later, make it a button maybe
+        initialize_update_administration_data() # take this out later, make it a periodic task
         context = super().get_context_data(**kwargs)
         context['title'] = 'List of all courses'
         return context
@@ -97,6 +97,7 @@ class RoleAssignmentsListView(ListView):
         return dictfetchall
 
     def get_context_data(self, **kwargs):
+        initialize_update_administration_data()  # take this out later, make it a periodic task
         context = super().get_context_data(**kwargs)
         context['title'] = f'List of all users in course {self.course.id} ({self.course.fullname})'
         if self.query_term:

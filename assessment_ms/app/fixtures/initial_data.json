@@ -6,11 +6,11 @@
     "name": "Number of Forum Access",
     "column_label": "num(accesses to foren)",
     "code": "# def_num of mod_forum in logstore for one user\r\n\r\nfrom administration.models import Course\r\nfrom django.db import connections\r\n\r\ndict_result = []\r\n\r\nwith connections['moodle'].cursor() as cursor:\r\n    query_string = \"SELECT userid FROM mdl_logstore_standard_log where component = 'mod_forum' and courseid = %s and userid = %s and timecreated > unix_timestamp(NOW() - INTERVAL %s MINUTE)\"\r\n    for course in course_qs:\r\n      users = course.get_users_for_assessment()\r\n      for user in users:\r\n        cursor.execute(query_string, (course.id, user, minutes))\r\n        value = len(cursor.fetchall())\r\n        dict_result.append({'courseid': course.id, 'userid': user, 'value': value})",
-	"minutes": 5,
+    "minutes": 2,
     "description": "",
     "DIFA_reference_id": "1018",
     "time_created": "2020-08-11T13:06:09.772Z",
-    "last_time_modified": "2020-08-11T13:06:09.772Z"
+    "last_time_modified": "2020-08-19T21:09:20.883Z"
   }
 },
 {
@@ -37,7 +37,7 @@
   "model": "django_celery_beat.intervalschedule",
   "pk": 1,
   "fields": {
-    "every": 1,
+    "every": 10,
     "period": "minutes"
   }
 },
@@ -54,10 +54,46 @@
   }
 },
 {
+  "model": "django_celery_beat.crontabschedule",
+  "pk": 2,
+  "fields": {
+    "minute": "*/10",
+    "hour": "*",
+    "day_of_week": "*",
+    "day_of_month": "*",
+    "month_of_year": "*",
+    "timezone": "UTC"
+  }
+},
+{
+  "model": "django_celery_beat.crontabschedule",
+  "pk": 3,
+  "fields": {
+    "minute": "0",
+    "hour": "*",
+    "day_of_week": "*",
+    "day_of_month": "*",
+    "month_of_year": "*",
+    "timezone": "UTC"
+  }
+},
+{
+  "model": "django_celery_beat.crontabschedule",
+  "pk": 4,
+  "fields": {
+    "minute": "*",
+    "hour": "*",
+    "day_of_week": "*",
+    "day_of_month": "*",
+    "month_of_year": "*",
+    "timezone": "UTC"
+  }
+},
+{
   "model": "django_celery_beat.periodictasks",
   "pk": 1,
   "fields": {
-    "last_update": "2020-08-12T15:30:55.716Z"
+    "last_update": "2020-08-20T18:26:32.023Z"
   }
 },
 {
@@ -82,9 +118,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": null,
-    "total_run_count": 0,
-    "date_changed": "2020-08-12T15:30:55.737Z",
+    "last_run_at": "2020-08-19T07:39:28.659Z",
+    "total_run_count": 2,
+    "date_changed": "2020-08-19T13:45:07.843Z",
     "description": ""
   }
 },
@@ -94,8 +130,8 @@
   "fields": {
     "name": "Save results of indicators to db",
     "task": "assessment.tasks.save_indicator_results",
-    "interval": 1,
-    "crontab": null,
+    "interval": null,
+    "crontab": 4,
     "solar": null,
     "clocked": null,
     "args": "[]",
@@ -108,11 +144,67 @@
     "expires": null,
     "expire_seconds": null,
     "one_off": false,
-    "start_time": "2020-08-12T08:58:54Z",
+    "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-08-12T16:51:57.527Z",
-    "total_run_count": 199,
-    "date_changed": "2020-08-12T16:52:57.547Z",
+    "last_run_at": "2020-08-19T14:22:00.004Z",
+    "total_run_count": 1743,
+    "date_changed": "2020-08-20T18:26:32.048Z",
+    "description": ""
+  }
+},
+{
+  "model": "django_celery_beat.periodictask",
+  "pk": 3,
+  "fields": {
+    "name": "Export indicator results to Cassandra",
+    "task": "export.tasks.export_indicator_results",
+    "interval": null,
+    "crontab": 2,
+    "solar": null,
+    "clocked": null,
+    "args": "[]",
+    "kwargs": "{}",
+    "queue": null,
+    "exchange": null,
+    "routing_key": null,
+    "headers": "{}",
+    "priority": null,
+    "expires": null,
+    "expire_seconds": null,
+    "one_off": false,
+    "start_time": null,
+    "enabled": true,
+    "last_run_at": "2020-08-19T14:20:00.032Z",
+    "total_run_count": 193,
+    "date_changed": "2020-08-19T14:22:05.052Z",
+    "description": ""
+  }
+},
+{
+  "model": "django_celery_beat.periodictask",
+  "pk": 4,
+  "fields": {
+    "name": "Clean-up already exported indicator results",
+    "task": "export.tasks.cleanup_exported_indicator_results",
+    "interval": null,
+    "crontab": 3,
+    "solar": null,
+    "clocked": null,
+    "args": "[]",
+    "kwargs": "{}",
+    "queue": null,
+    "exchange": null,
+    "routing_key": null,
+    "headers": "{}",
+    "priority": null,
+    "expires": null,
+    "expire_seconds": null,
+    "one_off": false,
+    "start_time": null,
+    "enabled": true,
+    "last_run_at": "2020-08-19T14:03:00.014Z",
+    "total_run_count": 46,
+    "date_changed": "2020-08-19T14:03:35.148Z",
     "description": ""
   }
 }

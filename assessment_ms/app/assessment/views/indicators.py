@@ -3,8 +3,6 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, DeleteView
 
-from administration.signals import initialize_update_administration_data
-
 from assessment.models.indicators import Indicator, IndicatorResult
 from assessment.models.constructs import Construct
 from assessment.forms import IndicatorForm
@@ -92,7 +90,6 @@ class IndicatorCalculateListView(TemplateView):
     template_name = "indicators/indicator_calculate.html"
 
     def results(self):
-        initialize_update_administration_data() # take this out later, make it a button maybe
         raw_result = self.indicator.calculate_result(minutes=self.indicator.minutes)
         (k1, k2, k3) = raw_result[0]
         column_label = self.indicator.column_label
