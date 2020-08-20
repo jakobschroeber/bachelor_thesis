@@ -106,6 +106,6 @@ docker exec assessment_ms sh -c "celery -A app control shutdown"
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stop celery-beat from sending task messages
 
 ```bash
-docker exec assessment_ms sh -c "kill $(cat /assessment_ms/app/celerybeat.pid)"
+docker exec assessment_ms sh -c "kill $(cat celerybeat.pid)"
 ```
 

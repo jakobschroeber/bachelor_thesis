@@ -92,7 +92,7 @@
   "model": "django_celery_beat.periodictask",
   "pk": 2,
   "fields": {
-    "name": "Save results of indicator 1 to db",
+    "name": "Save results of indicators to db",
     "task": "assessment.tasks.save_indicator_results",
     "interval": 1,
     "crontab": null,
