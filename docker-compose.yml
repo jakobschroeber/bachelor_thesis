@@ -1,4 +1,4 @@
-version: "3.2"
+version: "2.3"
 
 services:
   assessment_ms:
@@ -7,57 +7,54 @@ services:
     image: assessment_ms:1.0
     container_name: assessment_ms
     depends_on:
-      - mysql
-      - cassandra_cql
-      - cassandra
+      db:
+        condition: service_healthy
+      cassandra:
+        condition: service_healthy
     ports:
-      - "8000:8000"
+      - "${ASSESSMENT_MS_HOST_PORT}:8000"
     volumes:
-      - ./assessment_ms/app:/app
+      - "${ASSESSMENT_MS_SOURCE}:/app"
+      - ./.env:/env/.env
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
-    networks:
-      mdl_network: 
-        ipv4_address: 172.20.0.2
-      celery_network:
-        ipv4_address: 172.23.0.2
-      cassandra_network:
-        ipv4_address: 172.24.0.2
+    restart: unless-stopped
   
   rabbitmq:
     image: "rabbitmq:3-management"
     container_name: rabbitmq
     hostname: "rabbit"
     ports:
-      - "15672:15672"
-      - "5672:5672"
+      - "${RABBITMQ_HOST_HTTP_API_PORT}:15672"
+      - "${RABBITMQ_HOST_TCP_PORT}:5672"
     labels:
       NAME: "rabbitmq"
     volumes:
-      - ./storage/rabbitmq/rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
-    networks:
-      celery_network:
-        ipv4_address: 172.23.0.3
-        
-  apache:
-    image: "moodlehq/moodle-php-apache:${APACHE_PHP_VERSION}"
-    container_name: apache
-    depends_on:
-      - mysql
-    volumes:
-      - "${MOODLE_DIRECTORY}:/var/www/html"
-      - "${MOODLEDATA_PERSISTANCE}:/var/www/moodledata:rw"
-    env_file:
-      - env.d/apache
-    networks:
-      mdl_network: 
-        ipv4_address: 172.20.0.3
-      xapi_network:
-        ipv4_address: 172.22.0.2
+      - "${RABBITMQ_CONFIG}:/etc/rabbitmq/rabbitmq.config"
+          
+  moodle:
+    image: 'bitnami/moodle:3'
+    container_name: moodle
+    environment:
+      - "APACHE_HTTP_PORT_NUMBER=${MOODLE_APACHE_HTTP_PORT_NUMBER}"
+      - "APACHE_HTTPS_PORT_NUMBER=${MOODLE_APACHE_HTTPS_PORT_NUMBER}"
+      - "MOODLE_DATABASE_TYPE=${MOODLE_DATABASE_TYPE}"
+      - "MOODLE_DATABASE_PORT_NUMBER=${MOODLE_DATABASE_PORT_NUMBER}"
+      - "MOODLE_DATABASE_NAME=${MOODLE_DATABASE_NAME}"
+      - "MOODLE_DATABASE_USER=${APACHE_HTTP_PORT_NUMBER}"
+      - "MOODLE_DATABASE_PASSWORD=${MOODLE_DATABASE_TYPE}"
+      - "MOODLE_EMAIL=${MOODLE_DATABASE_PORT_NUMBER}"
     ports:
-      - "${MOODLE_WEB_PORT}:80"
+      - "${MOODLE_HOST_HTTP_PORT}:${MOODLE_APACHE_HTTP_PORT_NUMBER}"
+      - "${MOODLE_HOST_HTTPS_PORT}:${MOODLE_APACHE_HTTPS_PORT_NUMBER}"
+    volumes:
+      - '${MOODLEDATA_PERSISTANCE}:/bitnami'
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
       
-  mysql:
+  db:
     image: mysql:5
     container_name: mysql
     volumes:
@@ -68,154 +65,27 @@ services:
                 --innodb_file_format=barracuda
                 --innodb_file_per_table=On
                 --innodb_large_prefix=On
-    env_file:
-      - env.d/mysql
-    networks:
-      mdl_network: 
-        ipv4_address: 172.20.0.4
+    environment:
+      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+      - "MYSQL_USER=${MYSQL_USER}"
+      - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
+      - "MYSQL_DATABASE=${MYSQL_DATABASE}"
     ports:
       - "${MYSQL_HOST_PORT}:3306"
-        
-  cassandra_cql:
-    image: cassandra:2.1
-    container_name: cassandra_cql
-    command: cqlsh cassandra
-    networks:
-      cassandra_network:
-        ipv4_address: 172.24.0.3
-      
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+      timeout: 10s
+      retries: 10
+             
   cassandra:
     image: cassandra:2.1
     container_name: cassandra
     ports:
-      - "9042:9042"
+      - "${CASSANDRA_HOST_TCP_PORT}:9042"
     volumes:
       - ./storage/cassandra:/var/lib/cassandra
-    networks:
-      cassandra_network:
-        ipv4_address: 172.24.0.4
-  
-  mongodb:
-    image: mongo:4.0
-    container_name: ll_mongodb
-    # We use WiredTiger in all environments. In development environments we use small files
-    # to conserve disk space, and disable the journal for a minor performance gain.
-    # See https://docs.mongodb.com/v3.0/reference/program/mongod/#options for complete details.
-    command: mongod --smallfiles --nojournal --storageEngine wiredTiger
-    networks:
-      - ll_network
-
-  mailcatcher:
-    image: sj26/mailcatcher:latest
-    container_name: ll_mailcatcher
-    ports:
-      - 1080:1080
-    networks:
-      - ll_network
-
-  redis:
-    image: redis:4-alpine
-    container_name: ll_redis
-    networks:
-      - ll_network
-
-  xapi:
-    image: fundocker/xapi-service:v3.6.0
-    container_name: ll_xapi
-    environment:
-      - MONGO_URL=mongodb://mongodb:27017/learninglocker_v2
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      - mongodb
-      - redis
-      - api
-      - ui
-      - worker
-    networks:
-      - ll_network
-
-  api:
-    image: fundocker/learninglocker:latest
-    container_name: ll_api
-    env_file:
-      - env.d/learninglocker
-    expose:
-      - 8080
-    volumes:
-      - "./storage/learninglocker:/app/storage"
-    command: "pm2-runtime api/dist/server"
-    depends_on:
-      - mongodb
-      - redis
-      - mailcatcher
-    networks:
-      - ll_network
-
-  ui:
-    image: fundocker/learninglocker:latest
-    container_name: ll_ui
-    env_file:
-      - env.d/learninglocker
-    volumes:
-      - "./storage/learninglocker:/app/storage"
-    expose:
-      - "3000"
-    command: "pm2-runtime ui/dist/server"
-    depends_on:
-      - mongodb
-      - redis
-      - api
-    networks:
-      - ll_network
-
-  worker:
-    image: fundocker/learninglocker:latest
-    container_name: ll_worker
-    env_file:
-      - env.d/learninglocker
-    volumes:
-      - "./storage/learninglocker:/app/storage"
-    command: "pm2-runtime worker/dist/server"
-    depends_on:
-      - mongodb
-      - redis
-      - mailcatcher
-    networks:
-      - ll_network
-
-  nginx:
-    image: nginx:1.15
-    container_name: ll_nginx
-    env_file:
-      - env.d/nginx
-    volumes:
-      - ./nginx/nginx.conf.template:/etc/nginx/conf.d/default.conf.template
-    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
-    depends_on:
-      - ui
-      - xapi
-    ports:
-      - 8003:80
-    networks:
-      ll_network: {}
-      xapi_network:
-        ipv4_address: 172.22.0.3
-      
-networks:
-  mdl_network:
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-  ll_network: {}
-  xapi_network:
-    ipam:
-      config:
-        - subnet: 172.22.0.0/16
-  celery_network:
-    ipam:
-      config:
-        - subnet: 172.23.0.0/16
-  cassandra_network:
-    ipam:
-      config:
-        - subnet: 172.24.0.0/16
+    healthcheck:
+        test: ["CMD", "cqlsh", "-u cassandra", "-p cassandra" ,"-e describe keyspaces"]
+        interval: 15s
+        timeout: 10s
+        retries: 10

@@ -53,4 +53,4 @@ def update_administration_data(sender, instance, **kwargs):
                     updated_fields.append(field_name)
             if updated_fields:
                 obj.save(update_fields=updated_fields)
-        print(f'Administration data update for model {mdlsink.__name__}: updated row with id {instance.pk}')
+        # print(f'Administration data update for model {mdlsink.__name__}: updated row with id {instance.pk}')

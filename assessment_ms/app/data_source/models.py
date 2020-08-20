@@ -8,31 +8,31 @@ from django.db import models
 class User(AbstractMoodleUser):
     class Meta:
         managed = False
-        db_table = "m_user"
+        db_table = "mdl_user"
 
 
 class Course(AbstractMoodleCourse):
     class Meta:
         managed = False
-        db_table = 'm_course'
+        db_table = 'mdl_course'
 
 
 class Context(AbstractMoodleContext):
     class Meta:
         managed = False
-        db_table = 'm_context'
+        db_table = 'mdl_context'
 
 
 class Role(AbstractMoodleRole):
     class Meta:
         managed = False
-        db_table = 'm_role'
+        db_table = 'mdl_role'
 
 
 class RoleAssignments(AbstractMoodleRoleAssignments):
     class Meta:
         managed = False
-        db_table = 'm_role_assignments'
+        db_table = 'mdl_role_assignments'
 
 
 # Source tables for assessment only
@@ -45,7 +45,7 @@ class UserPreferences(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'm_user_preferences'
+        db_table = 'mdl_user_preferences'
         unique_together = (('userid', 'name'),)
 
 
@@ -74,7 +74,7 @@ class LogstoreStandardLog(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'm_logstore_standard_log'
+        db_table = 'mdl_logstore_standard_log'
 
 
 class Assign(models.Model):
@@ -111,7 +111,7 @@ class Assign(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'm_assign'
+        db_table = 'mdl_assign'
 
 
 class AssignSubmission(models.Model):
@@ -127,7 +127,7 @@ class AssignSubmission(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'm_assign_submission'
+        db_table = 'mdl_assign_submission'
         unique_together = (('assignment', 'userid', 'groupid', 'attemptnumber'),)
 
 
@@ -156,7 +156,7 @@ class CourseModules(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'm_course_modules'
+        db_table = 'mdl_course_modules'
 
 
 class TagInstance(models.Model):
@@ -173,7 +173,7 @@ class TagInstance(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'm_tag_instance'
+        db_table = 'mdl_tag_instance'
         unique_together = (('component', 'itemtype', 'itemid', 'contextid', 'tiuserid', 'tagid'),)
 
 
@@ -190,7 +190,7 @@ class Comments(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'm_comments'
+        db_table = 'mdl_comments'
 
 
 class ForumPosts(models.Model):
@@ -215,4 +215,4 @@ class ForumPosts(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'm_forum_posts'
+        db_table = 'mdl_forum_posts'

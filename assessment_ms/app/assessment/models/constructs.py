@@ -44,6 +44,7 @@ class Construct(models.Model):
                 elif (aggregation_type == 'normalized'):
                     max = queryset.filter(course=course.id).aggregate(Max('value'))['value__max']
                     min = queryset.filter(course=course.id).aggregate(Min('value'))['value__min']
+                    # todo: verify that max and min are not None
                     range = max - min
                     for entry in queryset.filter(course=course.id, user__in=course.get_users_for_assessment()):
                         indicator_results[(entry['course'], entry['user'])][column_label] = \
@@ -53,6 +54,7 @@ class Construct(models.Model):
                 elif (aggregation_type == 'standardized'):
                     avg = queryset.filter(course=course.id).aggregate(Avg('value'))['value__avg']
                     stddev = queryset.filter(course=course.id).aggregate(StdDev('value'))['value__stddev']
+                    # todo: verify that avg and stddev are not None
                     for entry in queryset.filter(course=course.id, user__in=course.get_users_for_assessment()):
                         indicator_results[(entry['course'], entry['user'])][column_label] = \
                             (entry['value'] - avg) / stddev if (stddev != 0) else 0.0
