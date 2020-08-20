@@ -5,7 +5,7 @@
   "fields": {
     "name": "Number of Forum Access",
     "column_label": "num(accesses to foren)",
-    "code": "# def_num of mod_forum in logstore for one user\r\n\r\nfrom administration.models import Course\r\nfrom django.db import connections\r\n\r\ndict_result = []\r\n\r\nwith connections['moodle'].cursor() as cursor:\r\n    query_string = \"SELECT userid FROM m_logstore_standard_log where component = 'mod_forum' and courseid = %s and userid = %s and timecreated > unix_timestamp(NOW() - INTERVAL %s MINUTE)\"\r\n    for course in course_qs:\r\n      users = course.get_users_for_assessment()\r\n      for user in users:\r\n        cursor.execute(query_string, (course.id, user, minutes))\r\n        value = len(cursor.fetchall())\r\n        dict_result.append({'courseid': course.id, 'userid': user, 'value': value})",
+    "code": "# def_num of mod_forum in logstore for one user\r\n\r\nfrom administration.models import Course\r\nfrom django.db import connections\r\n\r\ndict_result = []\r\n\r\nwith connections['moodle'].cursor() as cursor:\r\n    query_string = \"SELECT userid FROM mdl_logstore_standard_log where component = 'mod_forum' and courseid = %s and userid = %s and timecreated > unix_timestamp(NOW() - INTERVAL %s MINUTE)\"\r\n    for course in course_qs:\r\n      users = course.get_users_for_assessment()\r\n      for user in users:\r\n        cursor.execute(query_string, (course.id, user, minutes))\r\n        value = len(cursor.fetchall())\r\n        dict_result.append({'courseid': course.id, 'userid': user, 'value': value})",
 	"minutes": 5,
     "description": "",
     "DIFA_reference_id": "1018",

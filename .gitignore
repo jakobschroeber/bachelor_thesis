@@ -1,3 +1,4 @@
 archive
 __pycache__/
 assessment_ms/app/app_db*
+assessment_ms/app/celerybeat.pid
