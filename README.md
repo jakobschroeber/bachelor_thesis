@@ -73,7 +73,7 @@ docker exec assessment_ms sh -c "celery -A app beat -l info --scheduler django_c
 15. The settings of when assessment results are exported and when already exported assessment results are deleted can be changed at http://localhost:8000/admin ("Periodic tasks"), in order to access it you need to create a Django admin account
 
 ```bash
-docker exec -it assesssment_ms python manage.py createsuperuser
+docker exec -it assessment_ms python manage.py createsuperuser
 ```
 
 
