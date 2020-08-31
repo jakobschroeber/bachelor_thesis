@@ -4,8 +4,6 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, DeleteView
 
-from administration.signals import initialize_update_administration_data
-
 from assessment.models.constructs import Construct, ConstructResult
 from assessment.forms import ConstructForm
 
@@ -90,7 +88,6 @@ class ConstructIndicatorValuesView(TemplateView):
         return dictionary.get(key, '')
 
     def results(self):
-        initialize_update_administration_data() # take this out later, make it a button maybe
         result = self.construct.provide_indicator_results(self.aggregation_type)
         return result
 

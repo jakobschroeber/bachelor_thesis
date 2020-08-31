@@ -90,10 +90,22 @@
   }
 },
 {
+  "model": "django_celery_beat.crontabschedule",
+  "pk": 5,
+  "fields": {
+    "minute": "*/5",
+    "hour": "*",
+    "day_of_week": "*",
+    "day_of_month": "*",
+    "month_of_year": "*",
+    "timezone": "UTC"
+  }
+},
+{
   "model": "django_celery_beat.periodictasks",
   "pk": 1,
   "fields": {
-    "last_update": "2020-08-20T18:26:32.023Z"
+    "last_update": "2020-08-31T08:59:44.186Z"
   }
 },
 {
@@ -118,9 +130,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-08-19T07:39:28.659Z",
-    "total_run_count": 2,
-    "date_changed": "2020-08-19T13:45:07.843Z",
+    "last_run_at": "2020-08-31T08:59:44.281Z",
+    "total_run_count": 3,
+    "date_changed": "2020-08-31T08:59:44.341Z",
     "description": ""
   }
 },
@@ -146,9 +158,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-08-19T14:22:00.004Z",
-    "total_run_count": 1743,
-    "date_changed": "2020-08-20T18:26:32.048Z",
+    "last_run_at": "2020-08-31T09:11:00.140Z",
+    "total_run_count": 1756,
+    "date_changed": "2020-08-31T09:11:55.651Z",
     "description": ""
   }
 },
@@ -174,9 +186,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-08-19T14:20:00.032Z",
-    "total_run_count": 193,
-    "date_changed": "2020-08-19T14:22:05.052Z",
+    "last_run_at": "2020-08-31T09:10:00.052Z",
+    "total_run_count": 196,
+    "date_changed": "2020-08-31T09:11:55.575Z",
     "description": ""
   }
 },
@@ -202,9 +214,37 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-08-19T14:03:00.014Z",
-    "total_run_count": 46,
-    "date_changed": "2020-08-19T14:03:35.148Z",
+    "last_run_at": "2020-08-31T09:00:00.091Z",
+    "total_run_count": 48,
+    "date_changed": "2020-08-31T09:02:45.224Z",
+    "description": ""
+  }
+},
+{
+  "model": "django_celery_beat.periodictask",
+  "pk": 5,
+  "fields": {
+    "name": "Update administration data",
+    "task": "administration.tasks.update_administration_data",
+    "interval": null,
+    "crontab": 5,
+    "solar": null,
+    "clocked": null,
+    "args": "[]",
+    "kwargs": "{}",
+    "queue": null,
+    "exchange": null,
+    "routing_key": null,
+    "headers": "{}",
+    "priority": null,
+    "expires": null,
+    "expire_seconds": null,
+    "one_off": false,
+    "start_time": null,
+    "enabled": true,
+    "last_run_at": "2020-08-31T09:10:00.002Z",
+    "total_run_count": 3,
+    "date_changed": "2020-08-31T09:11:55.497Z",
     "description": ""
   }
 }
