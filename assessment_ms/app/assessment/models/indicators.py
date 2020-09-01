@@ -1,5 +1,6 @@
 from django.db import models
 from administration.models import Course, User
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
 from types import ModuleType
 
@@ -9,11 +10,13 @@ class Indicator(models.Model):
     name                = models.CharField(max_length=100, help_text = 'Indicator name')
     column_label        = models.CharField(max_length=100, help_text = 'Column label')
     code                = models.TextField(default='# Python code for indicator calculation\n\n')
-    minutes             = models.BigIntegerField(help_text = 'New values every ... minutes')
+    minutes             = models.BigIntegerField(help_text = 'Consider ... minutes retrospectively')
     description         = models.CharField(max_length=100, blank=True, help_text = 'Description')
     DIFA_reference_id   = models.CharField(max_length=50, blank=True, help_text = 'DIFA ID')
     time_created        = models.DateTimeField(auto_now_add=True, help_text = 'Created')
     last_time_modified  = models.DateTimeField(auto_now=True, help_text = 'Last modified')
+    schedule            = models.ForeignKey(CrontabSchedule, on_delete=models.PROTECT, null=True)
+    periodictask        = models.ForeignKey(PeriodicTask, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
         return f'{self.name}'

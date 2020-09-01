@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+import json
 from django.template.defaulttags import register
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
@@ -6,6 +8,8 @@ from django.views.generic.edit import FormView, DeleteView
 
 from assessment.models.constructs import Construct, ConstructResult
 from assessment.forms import ConstructForm
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
+from assessment.forms import IndicatorForm, CrontabScheduleForm, PeriodicTaskForm
 
 
 
@@ -19,18 +23,41 @@ class ConstructCreateView(FormView):
         instance = Construct.objects.create(**form.cleaned_data)
         for indicator in indicators_qs:
             instance.indicators.add(indicator)
+
+        constructid = f"{instance.id}"
+
+        schedule = CrontabSchedule.objects.create(
+            minute='*',
+            hour='*',
+            day_of_week='*',
+            day_of_month='*',
+            month_of_year='*',
+        )
+
+        periodictask = PeriodicTask.objects.create(
+            crontab=schedule,
+            name=f'Assessment of construct {instance.pk} ({instance})',
+            task='assessment.tasks.save_construct_results',
+            args=json.dumps([constructid, ]),
+            enabled=False,
+        )
+
+        instance.schedule = schedule
+        instance.periodictask = periodictask
+        instance.save()
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Create new constuct'
+        context['title'] = 'Create new construct'
         return context
 
 
 class ConstructUpdateView(FormView):
     template_name = 'constructs/construct_detail.html'
     form_class = ConstructForm
-    success_url = '..'
+    success_url = '../..'
 
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
@@ -61,6 +88,30 @@ class ConstructDeleteView(DeleteView):
         self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
         return self.construct
 
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+
+        self.object.delete()
+
+        try:
+            schedule = CrontabSchedule.objects.get(pk=self.object.schedule.pk)
+        except CrontabSchedule.DoesNotExist:
+            schedule = None
+
+        if (schedule):
+            schedule.delete()
+
+        try:
+            periodictask = PeriodicTask.objects.get(pk=self.object.periodictask.pk)
+        except PeriodicTask.DoesNotExist:
+            periodictask = None
+
+        if (periodictask):
+            periodictask.delete()
+
+        return HttpResponseRedirect(success_url)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = f'Delete construct {self.construct.id} ({self.construct.name})'
@@ -68,8 +119,9 @@ class ConstructDeleteView(DeleteView):
 
 
 class ConstructListView(ListView):
-    columns = ['id', 'name', 'column_label', 'DIFA_reference_id', 'time_created', 'last_time_modified']
-    queryset = Construct.objects.values(*columns)
+    columns = ['id', 'name', 'column_label', 'DIFA_reference_id', 'time_created', 'last_time_modified', 'schedule__minute', \
+               'schedule__hour', 'schedule__day_of_week', 'schedule__day_of_month', 'schedule__month_of_year', 'periodictask__enabled']
+    queryset = Construct.objects.select_related('schedule', 'periodictask').values(*columns)
     template_name = "constructs/construct_list.html"
 
     def get_context_data(self, **kwargs):
@@ -78,6 +130,59 @@ class ConstructListView(ListView):
         context['title'] = 'List of all constructs'
         context['headers'] = column_headers
         return context
+
+
+class ConstructScheduleUpdateView(FormView):
+    template_name = 'constructs/construct_schedule_detail.html'
+    form_class = CrontabScheduleForm
+    success_url = '../..'
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
+        self.schedule = get_object_or_404(CrontabSchedule, id=self.construct.schedule.id)
+        form_kwargs['instance'] = self.schedule
+        return form_kwargs
+
+    def form_valid(self, form):
+        schedule = form.save(commit=False)
+        schedule.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Update schedule of construct {self.construct.id} ({self.construct.name})'
+        return context
+
+
+class ConstructStatusUpdateView(FormView):
+        template_name = 'constructs/construct_status_update.html'
+        form_class = PeriodicTaskForm
+        success_url = '../..'
+
+        def get_form_kwargs(self):
+            form_kwargs = super().get_form_kwargs()
+            self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
+            self.periodictask = get_object_or_404(PeriodicTask, id=self.construct.periodictask.id)
+            self.periodictask.enabled = not self.periodictask.enabled
+            form_kwargs['instance'] = self.periodictask
+            return form_kwargs
+
+        def form_valid(self, form):
+            periodictask = form.save(commit=False)
+            periodictask.save()
+            return super().form_valid(form)
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            if (self.periodictask.enabled):
+                action = 'Enable'
+            else:
+                action = 'Disable'
+            context['action'] = action
+            context['title'] = f'{action} assessment for construct'
+            context['indicator'] = self.construct
+            return context
 
 
 class ConstructIndicatorValuesView(TemplateView):
@@ -119,7 +224,6 @@ class ConstructResultsListView(ListView):
 
     def get_queryset(self):
         self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
-        self.construct.save_result()  # take this out later, make it a button maybe
         queryset = ConstructResult.objects.filter(construct=self.construct).select_related('user')
         return queryset
 

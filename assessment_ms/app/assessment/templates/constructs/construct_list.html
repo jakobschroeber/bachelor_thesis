@@ -6,13 +6,21 @@
     {% if forloop.first %}
     <tr>
         {% for fieldname in headers %}<th>{{ fieldname }}</th>{% endfor %}
+        <th colspan="5">Schedule</th>
+        <th>Enabled</th>
         <th>Actions</th>
     </tr>
     {% endif %}
     <tr>
         {% for value in instance.values %}<td>{{ value }}</td>{% endfor %}
         <td>
-            <a href="{{ instance.id }}/">Update construct</a><br>
+            <a href="{{ instance.id }}/construct-update/">Update construct</a><br>
+            <a href="{{ instance.id }}/schedule-update/">Update schedule</a><br>
+            {% if instance.periodictask__enabled == True %}
+                <a href="{{ instance.id }}/status-update/">Disable assessment</a><br>
+            {% else %}
+                <a href="{{ instance.id }}/status-update/">Enable assessment</a><br>
+            {% endif %}
             <a href="{{ instance.id }}/delete/">Delete construct</a><br>
             <a href="{{ instance.id }}/indicators/">Show assigned indicators</a><br>
             <a href="{{ instance.id }}/indicator_values/original/">Calculate original values of assigned indicators</a><br>

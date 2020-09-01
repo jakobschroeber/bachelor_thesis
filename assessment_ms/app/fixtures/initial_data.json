@@ -6,11 +6,13 @@
     "name": "Number of Forum Access",
     "column_label": "num(accesses to foren)",
     "code": "# def_num of mod_forum in logstore for one user\r\n\r\nfrom administration.models import Course\r\nfrom django.db import connections\r\n\r\ndict_result = []\r\n\r\nwith connections['moodle'].cursor() as cursor:\r\n    query_string = \"SELECT userid FROM mdl_logstore_standard_log where component = 'mod_forum' and courseid = %s and userid = %s and timecreated > unix_timestamp(NOW() - INTERVAL %s MINUTE)\"\r\n    for course in course_qs:\r\n      users = course.get_users_for_assessment()\r\n      for user in users:\r\n        cursor.execute(query_string, (course.id, user, minutes))\r\n        value = len(cursor.fetchall())\r\n        dict_result.append({'courseid': course.id, 'userid': user, 'value': value})",
-    "minutes": 2,
+    "minutes": 10,
     "description": "",
     "DIFA_reference_id": "1018",
-    "time_created": "2020-08-11T13:06:09.772Z",
-    "last_time_modified": "2020-08-19T21:09:20.883Z"
+    "time_created": "2020-09-01T13:57:01.938Z",
+    "last_time_modified": "2020-09-01T13:57:02.102Z",
+    "schedule": 4,
+    "periodictask": 4
   }
 },
 {
@@ -19,10 +21,13 @@
   "fields": {
     "name": "Learning Engagement",
     "column_label": "LE",
+    "minutes": 120,
     "description": "",
     "DIFA_reference_id": "",
-    "time_created": "2020-08-11T13:06:25.655Z",
-    "last_time_modified": "2020-08-11T13:06:25.655Z"
+    "time_created": "2020-09-01T13:57:35.380Z",
+    "last_time_modified": "2020-09-01T13:57:35.611Z",
+    "schedule": 5,
+    "periodictask": 5
   }
 },
 {
@@ -34,19 +39,11 @@
   }
 },
 {
-  "model": "django_celery_beat.intervalschedule",
-  "pk": 1,
-  "fields": {
-    "every": 10,
-    "period": "minutes"
-  }
-},
-{
   "model": "django_celery_beat.crontabschedule",
   "pk": 1,
   "fields": {
-    "minute": "0",
-    "hour": "4",
+    "minute": "*",
+    "hour": "*",
     "day_of_week": "*",
     "day_of_month": "*",
     "month_of_year": "*",
@@ -57,7 +54,7 @@
   "model": "django_celery_beat.crontabschedule",
   "pk": 2,
   "fields": {
-    "minute": "*/10",
+    "minute": "0",
     "hour": "*",
     "day_of_week": "*",
     "day_of_month": "*",
@@ -70,7 +67,7 @@
   "pk": 3,
   "fields": {
     "minute": "0",
-    "hour": "*",
+    "hour": "2",
     "day_of_week": "*",
     "day_of_month": "*",
     "month_of_year": "*",
@@ -93,7 +90,7 @@
   "model": "django_celery_beat.crontabschedule",
   "pk": 5,
   "fields": {
-    "minute": "*/5",
+    "minute": "*",
     "hour": "*",
     "day_of_week": "*",
     "day_of_month": "*",
@@ -105,45 +102,17 @@
   "model": "django_celery_beat.periodictasks",
   "pk": 1,
   "fields": {
-    "last_update": "2020-08-31T08:59:44.186Z"
+    "last_update": "2020-09-01T13:57:35.545Z"
   }
 },
 {
   "model": "django_celery_beat.periodictask",
   "pk": 1,
   "fields": {
-    "name": "celery.backend_cleanup",
-    "task": "celery.backend_cleanup",
+    "name": "Update administration data",
+    "task": "administration.tasks.update_administration_data",
     "interval": null,
     "crontab": 1,
-    "solar": null,
-    "clocked": null,
-    "args": "[]",
-    "kwargs": "{}",
-    "queue": null,
-    "exchange": null,
-    "routing_key": null,
-    "headers": "{}",
-    "priority": null,
-    "expires": null,
-    "expire_seconds": 43200,
-    "one_off": false,
-    "start_time": null,
-    "enabled": true,
-    "last_run_at": "2020-08-31T08:59:44.281Z",
-    "total_run_count": 3,
-    "date_changed": "2020-08-31T08:59:44.341Z",
-    "description": ""
-  }
-},
-{
-  "model": "django_celery_beat.periodictask",
-  "pk": 2,
-  "fields": {
-    "name": "Save results of indicators to db",
-    "task": "assessment.tasks.save_indicator_results",
-    "interval": null,
-    "crontab": 4,
     "solar": null,
     "clocked": null,
     "args": "[]",
@@ -158,15 +127,15 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-08-31T09:11:00.140Z",
-    "total_run_count": 1756,
-    "date_changed": "2020-08-31T09:11:55.651Z",
+    "last_run_at": null,
+    "total_run_count": 0,
+    "date_changed": "2020-09-01T13:50:14.004Z",
     "description": ""
   }
 },
 {
   "model": "django_celery_beat.periodictask",
-  "pk": 3,
+  "pk": 2,
   "fields": {
     "name": "Export indicator results to Cassandra",
     "task": "export.tasks.export_indicator_results",
@@ -186,15 +155,15 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-08-31T09:10:00.052Z",
-    "total_run_count": 196,
-    "date_changed": "2020-08-31T09:11:55.575Z",
+    "last_run_at": null,
+    "total_run_count": 0,
+    "date_changed": "2020-09-01T13:54:17.914Z",
     "description": ""
   }
 },
 {
   "model": "django_celery_beat.periodictask",
-  "pk": 4,
+  "pk": 3,
   "fields": {
     "name": "Clean-up already exported indicator results",
     "task": "export.tasks.cleanup_exported_indicator_results",
@@ -214,23 +183,23 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-08-31T09:00:00.091Z",
-    "total_run_count": 48,
-    "date_changed": "2020-08-31T09:02:45.224Z",
+    "last_run_at": null,
+    "total_run_count": 0,
+    "date_changed": "2020-09-01T13:55:45.283Z",
     "description": ""
   }
 },
 {
   "model": "django_celery_beat.periodictask",
-  "pk": 5,
+  "pk": 4,
   "fields": {
-    "name": "Update administration data",
-    "task": "administration.tasks.update_administration_data",
+    "name": "Assessment of indicator 1 (Number of Forum Access)",
+    "task": "assessment.tasks.save_indicator_results",
     "interval": null,
-    "crontab": 5,
+    "crontab": 4,
     "solar": null,
     "clocked": null,
-    "args": "[]",
+    "args": "[\"1\"]",
     "kwargs": "{}",
     "queue": null,
     "exchange": null,
@@ -241,10 +210,38 @@
     "expire_seconds": null,
     "one_off": false,
     "start_time": null,
-    "enabled": true,
-    "last_run_at": "2020-08-31T09:10:00.002Z",
-    "total_run_count": 3,
-    "date_changed": "2020-08-31T09:11:55.497Z",
+    "enabled": false,
+    "last_run_at": null,
+    "total_run_count": 0,
+    "date_changed": "2020-09-01T13:57:02.065Z",
+    "description": ""
+  }
+},
+{
+  "model": "django_celery_beat.periodictask",
+  "pk": 5,
+  "fields": {
+    "name": "Assessment of construct 1 (Learning Engagement)",
+    "task": "assessment.tasks.save_construct_results",
+    "interval": null,
+    "crontab": 5,
+    "solar": null,
+    "clocked": null,
+    "args": "[\"1\"]",
+    "kwargs": "{}",
+    "queue": null,
+    "exchange": null,
+    "routing_key": null,
+    "headers": "{}",
+    "priority": null,
+    "expires": null,
+    "expire_seconds": null,
+    "one_off": false,
+    "start_time": null,
+    "enabled": false,
+    "last_run_at": null,
+    "total_run_count": 0,
+    "date_changed": "2020-09-01T13:57:35.570Z",
     "description": ""
   }
 }

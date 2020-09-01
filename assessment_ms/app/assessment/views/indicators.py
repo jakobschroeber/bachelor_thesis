@@ -1,11 +1,14 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponseRedirect
+import json
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, DeleteView
 
 from assessment.models.indicators import Indicator, IndicatorResult
 from assessment.models.constructs import Construct
-from assessment.forms import IndicatorForm
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
+from assessment.forms import IndicatorForm, CrontabScheduleForm, PeriodicTaskForm
 
 
 class IndicatorCreateView(FormView):
@@ -14,7 +17,29 @@ class IndicatorCreateView(FormView):
     success_url = '..'
 
     def form_valid(self, form):
-        Indicator.objects.create(**form.cleaned_data)
+        indicator = Indicator.objects.create(**form.cleaned_data)
+        indicatorid = f"{indicator.id}"
+
+        schedule = CrontabSchedule.objects.create(
+            minute = '*',
+            hour = '*',
+            day_of_week = '*',
+            day_of_month = '*',
+            month_of_year = '*',
+        )
+
+        periodictask = PeriodicTask.objects.create(
+            crontab = schedule,
+            name = f'Assessment of indicator {indicator.pk} ({indicator})',
+            task = 'assessment.tasks.save_indicator_results',
+            args = json.dumps([indicatorid, ]),
+            enabled = False,
+        )
+
+        indicator.schedule = schedule
+        indicator.periodictask = periodictask
+        indicator.save()
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -26,7 +51,7 @@ class IndicatorCreateView(FormView):
 class IndicatorUpdateView(FormView):
     template_name = 'indicators/indicator_detail.html'
     form_class = IndicatorForm
-    success_url = '..'
+    success_url = '../..'
 
     def get_form_kwargs(self):
         form_kwargs = super().get_form_kwargs()
@@ -54,6 +79,30 @@ class IndicatorDeleteView(DeleteView):
         self.indicator = get_object_or_404(Indicator, id=self.kwargs.get("indicator_id"))
         return self.indicator
 
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+
+        self.object.delete()
+
+        try:
+            schedule = CrontabSchedule.objects.get(pk=self.object.schedule.pk)
+        except CrontabSchedule.DoesNotExist:
+            schedule = None
+
+        if (schedule):
+            schedule.delete()
+
+        try:
+            periodictask = PeriodicTask.objects.get(pk=self.object.periodictask.pk)
+        except PeriodicTask.DoesNotExist:
+            periodictask = None
+
+        if (periodictask):
+            periodictask.delete()
+
+        return HttpResponseRedirect(success_url)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = f'Delete indicator {self.indicator.id} ({self.indicator.name})'
@@ -61,7 +110,8 @@ class IndicatorDeleteView(DeleteView):
 
 
 class IndicatorListView(ListView):
-    columns = ['id', 'name', 'column_label', 'DIFA_reference_id', 'time_created', 'last_time_modified']
+    columns = ['id', 'name', 'column_label', 'DIFA_reference_id', 'time_created', 'last_time_modified', 'schedule__minute', \
+               'schedule__hour', 'schedule__day_of_week', 'schedule__day_of_month', 'schedule__month_of_year', 'periodictask__enabled']
     template_name = "indicators/indicator_list.html"
 
     def get_queryset(self):
@@ -69,9 +119,9 @@ class IndicatorListView(ListView):
             self.construct = Construct.objects.get(pk=self.kwargs.get('construct_id'))
         except Construct.DoesNotExist:
             self.construct = None
-            queryset = Indicator.objects.values(*self.columns)
+            queryset = Indicator.objects.select_related('schedule', 'periodictask').values(*self.columns)
         else:
-            queryset = Indicator.objects.filter(construct__pk=self.construct.pk).values(*self.columns)
+            queryset = Indicator.objects.filter(construct__pk=self.construct.pk).select_related('schedule', 'periodictask').values(*self.columns)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -84,6 +134,59 @@ class IndicatorListView(ListView):
         context['title'] = title
         context['headers'] = column_headers
         return context
+
+
+class IndicatorScheduleUpdateView(FormView):
+    template_name = 'indicators/indicator_schedule_detail.html'
+    form_class = CrontabScheduleForm
+    success_url = '../..'
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        self.indicator = get_object_or_404(Indicator, id=self.kwargs.get("indicator_id"))
+        self.schedule = get_object_or_404(CrontabSchedule, id=self.indicator.schedule.id)
+        form_kwargs['instance'] = self.schedule
+        return form_kwargs
+
+    def form_valid(self, form):
+        schedule = form.save(commit=False)
+        schedule.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Update schedule of indicator {self.indicator.id} ({self.indicator.name})'
+        return context
+
+
+class IndicatorStatusUpdateView(FormView):
+        template_name = 'indicators/indicator_status_update.html'
+        form_class = PeriodicTaskForm
+        success_url = '../..'
+
+        def get_form_kwargs(self):
+            form_kwargs = super().get_form_kwargs()
+            self.indicator = get_object_or_404(Indicator, id=self.kwargs.get("indicator_id"))
+            self.periodictask = get_object_or_404(PeriodicTask, id=self.indicator.periodictask.id)
+            self.periodictask.enabled = not self.periodictask.enabled
+            form_kwargs['instance'] = self.periodictask
+            return form_kwargs
+
+        def form_valid(self, form):
+            periodictask = form.save(commit=False)
+            periodictask.save()
+            return super().form_valid(form)
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            if (self.periodictask.enabled):
+                action = 'Enable'
+            else:
+                action = 'Disable'
+            context['action'] = action
+            context['title'] = f'{action} assessment for indicator'
+            context['indicator'] = self.indicator
+            return context
 
 
 class IndicatorCalculateListView(TemplateView):

@@ -1,6 +1,7 @@
 from django.db import models
 from assessment.models.indicators import Indicator, IndicatorResult
 from administration.models import Course, User
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
 from django.db.models import Avg, Max, Min
 from django.db.models.aggregates import StdDev
@@ -14,15 +15,18 @@ class Construct(models.Model):
     name                = models.CharField(max_length=100, help_text = 'Construct name')
     indicators          = models.ManyToManyField(Indicator, through='ConstructIndicatorRelation', blank=True)
     column_label        = models.CharField(max_length=100, help_text = 'Column label in database results')
+    minutes             = models.BigIntegerField(help_text = 'Consider ... minutes retrospectively')
     description         = models.CharField(max_length=100, blank=True, help_text = 'Description')
     DIFA_reference_id   = models.CharField(max_length=50, blank=True, help_text = 'DIFA ID')
     time_created        = models.DateTimeField(auto_now_add=True, help_text = 'Created')
     last_time_modified  = models.DateTimeField(auto_now=True, help_text = 'Last modified')
+    schedule            = models.ForeignKey(CrontabSchedule, on_delete=models.PROTECT, null=True)
+    periodictask        = models.ForeignKey(PeriodicTask, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
         return f'{self.name}'
 
-    def provide_indicator_results(self, aggregation_type, courses=Course.objects.exclude(format='site')):
+    def provide_indicator_results(self, aggregation_type, courses=Course.objects.exclude(format='site'), minutes=518400):
         course_qs = courses.filter(ignore_activity=False)
         indicators = self.indicators.all()
         indicator_results = {}
@@ -62,8 +66,8 @@ class Construct(models.Model):
                     raise('Unknown aggregation type')
         return indicator_results
 
-    def calculate_result(self, courses=Course.objects.exclude(format='site')):
-        indicator_results = self.provide_indicator_results('normalized', courses) # todo: get aggregation_type from self
+    def calculate_result(self, courses=Course.objects.exclude(format='site'), minutes=518400):
+        indicator_results = self.provide_indicator_results('normalized', courses, minutes) # todo: get aggregation_type from self
         result = [{
             'courseid': courseid,
             'userid': userid,
@@ -71,14 +75,14 @@ class Construct(models.Model):
         } for (courseid, userid) in indicator_results if any(indicator_results[(courseid, userid)])]
         return result
 
-    def save_result(self, courses=Course.objects.exclude(format='site')):
+    def save_result(self, courses=Course.objects.exclude(format='site'), minutes=518400):
         preexisting_results = ConstructResult.objects.filter(construct=self)
         for course in courses:
             if course.ignore_activity:
                 preexisting_results.filter(course=course.pk).delete()
             else:
                 preexisting_results.filter(course=course.pk).exclude(user__in=course.get_users_for_assessment()).delete()
-        raw_results = self.calculate_result(courses)
+        raw_results = self.calculate_result(courses, minutes)
 
         results = [
             ConstructResult(
