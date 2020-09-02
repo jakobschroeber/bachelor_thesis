@@ -209,7 +209,7 @@ class ConstructCalculateListView(TemplateView):
     template_name = "constructs/construct_calculate.html"
 
     def results(self):
-        result = self.construct.calculate_result()
+        _, result = self.construct.calculate_result()
         return result
 
     def get_context_data(self, **kwargs):
@@ -224,7 +224,8 @@ class ConstructResultsListView(ListView):
 
     def get_queryset(self):
         self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
-        queryset = ConstructResult.objects.filter(construct=self.construct).select_related('user')
+        # construct_assessments = ConstructAssessment.objects.filter(construct=self.construct)
+        queryset = ConstructResult.objects.filter(assessment__construct=self.construct).select_related('user')
         return queryset
 
 

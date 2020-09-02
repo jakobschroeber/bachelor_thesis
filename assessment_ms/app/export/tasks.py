@@ -29,6 +29,11 @@ def export_indicator_results():
     export_qs.update(exported=True)
 
 
+    # todo: Create table structure in order to store ConstructResult and ConstructIndicatorResult values in Cassandra
+
+    # todo: Create export job for construct results as well
+
+
 @shared_task
 def cleanup_exported_indicator_results():
     cleanup_qs = IndicatorResult.objects.filter(exported=True)

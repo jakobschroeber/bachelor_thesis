@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'app_db_20200812.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'app_db.sqlite3'),
     },
     'moodle': {
         'ENGINE': env('DJANGO_MOODLE_DB_ENGINE'),

@@ -193,7 +193,7 @@ class IndicatorCalculateListView(TemplateView):
     template_name = "indicators/indicator_calculate.html"
 
     def results(self):
-        raw_result = self.indicator.calculate_result(minutes=self.indicator.minutes)
+        raw_result = self.indicator.calculate_result()
         (k1, k2, k3) = raw_result[0]
         column_label = self.indicator.column_label
         result = [{'Course ID': x[k1], 'User ID': x[k2], column_label: x[k3]} for x in raw_result]
