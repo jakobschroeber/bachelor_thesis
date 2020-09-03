@@ -6,3 +6,4 @@ django-celery-beat
 cassandra-driver==3.13.0
 django-cassandra-engine==1.4.0
 django-environ>=0.4.5,<0.5
+djangorestframework==3.11.0

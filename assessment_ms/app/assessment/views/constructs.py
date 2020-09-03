@@ -234,3 +234,8 @@ class ConstructResultsListView(ListView):
         context['title'] = f'Database results of construct {self.construct.id} ({self.construct.name})'
         context['construct'] = self.construct
         return context
+
+        # todo: add attribute exported in ListView
+
+
+# todo: add ListView class for model ConstructIndicatorResult and make accessible from ConstructResultsListView

@@ -13,7 +13,7 @@ class Construct(models.Model):
     # primary key field is automatically added
     name                = models.CharField(max_length=100, help_text = 'Construct name')
     indicators          = models.ManyToManyField(Indicator, through='ConstructIndicatorRelation', blank=True)
-    column_label        = models.CharField(max_length=100, help_text = 'Column label in database results') # todo: make unique
+    column_label        = models.CharField(max_length=100, help_text = 'Column label in database results') # todo: make unique=True
     minutes             = models.BigIntegerField(help_text = 'Consider ... minutes retrospectively')
     description         = models.CharField(max_length=100, blank=True, help_text = 'Description')
     DIFA_reference_id   = models.CharField(max_length=50, blank=True, help_text = 'DIFA ID')
@@ -78,7 +78,7 @@ class Construct(models.Model):
 
     def save_result(self, courses=Course.objects.exclude(format='site')):
         preexisting_construct_results           = ConstructResult.objects.select_related('assessment').filter(assessment__construct=self)
-        preexisting_construct_indicator_results = ConstructIndicatorResult.objects.select_related('assessment').filter(assessment__construct=self)
+        preexisting_construct_indicator_results = ConstructIndicatorResult.objects.select_related('construct_result').filter(construct_result__assessment__construct=self)
         for course in courses:
             if course.ignore_activity:
                 preexisting_construct_results.filter(course=course.pk).delete()
@@ -91,22 +91,6 @@ class Construct(models.Model):
 
         current_assessment = ConstructAssessment.objects.create(construct=self)
 
-        indicator_results = []
-        for (courseid, userid) in raw_indicator_results:
-            course = Course.objects.get(pk=courseid)
-            user = User.objects.get(pk=userid)
-            for column_label in raw_indicator_results[(courseid, userid)]:
-                entry = ConstructIndicatorResult(
-                    assessment=current_assessment,
-                    indicator=Indicator.objects.get(column_label=column_label),
-                    course=course,
-                    user=user,
-                    value=raw_indicator_results[(courseid, userid)][column_label]
-                )
-                indicator_results.append(entry)
-
-        ConstructIndicatorResult.objects.bulk_create(indicator_results, batch_size=200)
-
         construct_results = [
             ConstructResult(
                 assessment = current_assessment,
@@ -117,6 +101,24 @@ class Construct(models.Model):
             for entry in raw_construct_results
         ]
         ConstructResult.objects.bulk_create(construct_results, batch_size=200)
+
+        stored_construct_results = ConstructResult.objects.filter(assessment = current_assessment)
+
+        indicator_results = []
+        for (courseid, userid) in raw_indicator_results:
+            course = Course.objects.get(pk=courseid)
+            user = User.objects.get(pk=userid)
+            for column_label in raw_indicator_results[(courseid, userid)]:
+                entry = ConstructIndicatorResult(
+                    construct_result=stored_construct_results.get(course=course, user=user),
+                    indicator=Indicator.objects.get(column_label=column_label),
+                    course=course,
+                    user=user,
+                    value=raw_indicator_results[(courseid, userid)][column_label]
+                )
+                indicator_results.append(entry)
+
+        ConstructIndicatorResult.objects.bulk_create(indicator_results, batch_size=200)
 
 
 class ConstructIndicatorRelation(models.Model):
@@ -143,13 +145,15 @@ class ConstructResult(models.Model):
 
 
 class ConstructIndicatorResult(models.Model):
-    assessment          = models.ForeignKey(ConstructAssessment, on_delete=models.CASCADE)
+    construct_result    = models.ForeignKey(ConstructResult, related_name='measures', on_delete=models.CASCADE)
     indicator           = models.ForeignKey(Indicator, on_delete=models.CASCADE)
     course              = models.ForeignKey(Course, on_delete=models.CASCADE)
     user                = models.ForeignKey(User, on_delete=models.CASCADE)
     value               = models.FloatField(null=True)
-    time_created        = models.DateTimeField(auto_now_add=True)
+    time_created        = models.DateTimeField(auto_now_add=True) # todo: remove column time_created from models ConstructResult and ConstructIndicatorResult
     exported            = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ["assessment", "course", "user"]
+        ordering = ["construct_result", "course", "user"]
+
+    # todo: add attribute exported to model and in ListView

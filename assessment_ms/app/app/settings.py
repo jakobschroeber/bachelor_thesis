@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django_ace',
     'django_celery_beat',
     'django_cassandra_engine',
+    'rest_framework',
 
     #own
     'data_source',
@@ -85,7 +86,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'app_db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'app_db_.sqlite3'),
     },
     'moodle': {
         'ENGINE': env('DJANGO_MOODLE_DB_ENGINE'),

@@ -16,6 +16,15 @@ class IndicatorCreateView(FormView):
     form_class = IndicatorForm
     success_url = '..'
 
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        try:
+            self.construct = Construct.objects.get(pk=self.kwargs.get('construct_id'))
+        except Construct.DoesNotExist:
+            self.construct = None
+
+        return form_kwargs
+
     def form_valid(self, form):
         indicator = Indicator.objects.create(**form.cleaned_data)
         indicatorid = f"{indicator.id}"
@@ -40,11 +49,18 @@ class IndicatorCreateView(FormView):
         indicator.periodictask = periodictask
         indicator.save()
 
+        if self.construct is not None:
+            self.construct.indicators.add(indicator)
+            self.construct.save()
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Create new indicator'
+        if self.construct is None:
+            context['title'] = 'Create new indicator'
+        else:
+            context['title'] = f'Create new indicator for construct {self.construct.id} ({self.construct.name})'
         return context
 
 
@@ -52,12 +68,6 @@ class IndicatorUpdateView(FormView):
     template_name = 'indicators/indicator_detail.html'
     form_class = IndicatorForm
     success_url = '../..'
-
-    def get_form_kwargs(self):
-        form_kwargs = super().get_form_kwargs()
-        self.indicator = get_object_or_404(Indicator, id=self.kwargs.get("indicator_id"))
-        form_kwargs['instance'] = self.indicator
-        return form_kwargs
 
     def form_valid(self, form):
         indicator = form.save(commit=False)
