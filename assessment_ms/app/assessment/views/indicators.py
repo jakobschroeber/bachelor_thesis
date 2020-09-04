@@ -64,10 +64,16 @@ class IndicatorCreateView(FormView):
         return context
 
 
-class IndicatorUpdateView(FormView):
+class IndicatorUpdateView(FormView): # todo: make view accessible from construct side, check all indicator views for that
     template_name = 'indicators/indicator_detail.html'
     form_class = IndicatorForm
     success_url = '../..'
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        self.indicator = get_object_or_404(Indicator, id=self.kwargs.get("indicator_id"))
+        form_kwargs['instance'] = self.indicator
+        return form_kwargs
 
     def form_valid(self, form):
         indicator = form.save(commit=False)

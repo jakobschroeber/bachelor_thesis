@@ -29,7 +29,7 @@ urlpatterns = [
     path('constructs/<int:construct_id>/indicators/<int:indicator_id>/delete/', IndicatorDeleteView.as_view()),
     path('constructs/<int:construct_id>/indicators/<int:indicator_id>/calculate/', IndicatorCalculateListView.as_view()),
     path('constructs/<int:construct_id>/indicators/<int:indicator_id>/results/', IndicatorResultsListView.as_view()),
-    path('constructs/<int:construct_id>/indicator_values/<str:aggregation_type>/', ConstructIndicatorValuesView.as_view()),
+    path('constructs/<int:construct_id>/indicator_values/', ConstructIndicatorValuesView.as_view()),
     path('constructs/<int:construct_id>/calculate/', ConstructCalculateListView.as_view()),
     path('constructs/<int:construct_id>/results/', ConstructResultsListView.as_view()),
 ]

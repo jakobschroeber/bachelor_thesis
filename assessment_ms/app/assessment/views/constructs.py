@@ -193,14 +193,13 @@ class ConstructIndicatorValuesView(TemplateView):
         return dictionary.get(key, '')
 
     def results(self):
-        result = self.construct.provide_indicator_results(self.aggregation_type)
+        result = self.construct.provide_indicator_results()
         return result
 
     def get_context_data(self, **kwargs):
         self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
-        self.aggregation_type = self.kwargs.get("aggregation_type")
         context = super().get_context_data(**kwargs)
-        context['title'] = f'Current {self.aggregation_type} indicator values of construct {self.construct.id} ({self.construct.name})'
+        context['title'] = f'Current indicator values of construct {self.construct.id} ({self.construct.name})'
         context['indicator_labels'] = list(self.construct.indicators.all().values_list('column_label', flat=True))
         return context
 

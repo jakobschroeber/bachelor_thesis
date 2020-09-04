@@ -21,12 +21,15 @@ class Indicator(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    def calculate_result(self, courses=Course.objects.exclude(format='site')):
+    def calculate_result(self, courses=Course.objects.exclude(format='site'), minutes=None):
         # adapted from https://stackoverflow.com/questions/5362771/how-to-load-a-module-from-code-in-a-string
         course_qs = courses.filter(ignore_activity=False)
         mod = ModuleType(f"indicator_{self.id}", f"Code for calculation of indicator with pk {self.id}")
         mod.course_qs = course_qs
-        mod.minutes = self.minutes
+        if minutes is None:
+            mod.minutes = self.minutes
+        else:
+            mod.minutes = minutes
         exec(self.code, mod.__dict__)
 
         # todo: validation of dict_result needed here:

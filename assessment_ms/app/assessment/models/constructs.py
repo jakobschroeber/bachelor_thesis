@@ -3,10 +3,25 @@ from assessment.models.indicators import Indicator, IndicatorResult
 from administration.models import Course, User
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
-import numpy as np
-from django.db.models import Avg, Max, Min
-from django.db.models.aggregates import StdDev
+from enum import Enum
+import pandas as pd
+from sklearn import preprocessing
 from statistics import mean
+
+
+class Scaler(Enum):
+    NoScaler            = "No scaler"
+    MinMaxScaler        = "MinMaxScaler"
+    MaxAbsScaler        = "MaxAbsScaler"
+    StandardScaler      = "StandardScaler"
+    RobustScaler        = "RobustScaler"
+    Normalizer          = "Normalizer"
+    QuantileTransformer = "QuantileTransformer"
+    PowerTransformer    = "PowerTransformer"
+
+    @classmethod
+    def choices(cls):
+        return tuple((i.name, i.value) for i in cls)
 
 
 class Construct(models.Model):
@@ -15,6 +30,7 @@ class Construct(models.Model):
     indicators          = models.ManyToManyField(Indicator, through='ConstructIndicatorRelation', blank=True)
     column_label        = models.CharField(max_length=100, help_text = 'Column label in database results') # todo: make unique=True
     minutes             = models.BigIntegerField(help_text = 'Consider ... minutes retrospectively')
+    scaler              = models.CharField(max_length=255, choices=Scaler.choices(), default='NoScaler')
     description         = models.CharField(max_length=100, blank=True, help_text = 'Description')
     DIFA_reference_id   = models.CharField(max_length=50, blank=True, help_text = 'DIFA ID')
     time_created        = models.DateTimeField(auto_now_add=True, help_text = 'Created')
@@ -25,50 +41,55 @@ class Construct(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    def provide_indicator_results(self, aggregation_type, courses=Course.objects.exclude(format='site')):
+    def getscaler(self, scalername=None):
+        if scalername is None:
+            scalername = self.scaler
+        return {
+            'NoScaler': None,
+            'MinMaxScaler': preprocessing.MinMaxScaler(),
+            'MaxAbsScaler': preprocessing.MaxAbsScaler(),
+            'StandardScaler': preprocessing.StandardScaler(),
+            'RobustScaler': preprocessing.RobustScaler(),
+            'Normalizer': preprocessing.Normalizer(),
+            'QuantileTransformer': preprocessing.QuantileTransformer(),
+            'PowerTransformer': preprocessing.PowerTransformer()
+        }.get(scalername)
+
+    def provide_indicator_results(self, courses=Course.objects.exclude(format='site')):
         course_qs = courses.filter(ignore_activity=False)
         indicators = self.indicators.all()
-        indicator_results = {}
+        indicator_results_dict = {}
 
-        # For each course create entries (courseid, userid) used as keys later
+        scaler = self.getscaler()
+        print(scaler)
+
+        # For each course create key (courseid, userid)
         for course in course_qs:
             for userid in course.get_users_for_assessment():
-                indicator_results[(course.id, userid)] = {}
+                indicator_results_dict[(course.id, userid)] = {}
 
-        # for each indicator, per course: calculate min and max and write indicator values into dictionary
+        # for each indicator, per course: calculate indicator values and store as key-value pair into indicator_results_dict[(courseid, userid)]
         for indicator in indicators:
             column_label = indicator.column_label
 
             for course in course_qs:
-                raw_results = indicator.calculate_result(course_qs.filter(id=course.id))
+                raw_results = indicator.calculate_result(course_qs.filter(id=course.id), self.minutes)
 
-                if (aggregation_type == 'original'):
-                    for entry in raw_results:
-                        indicator_results[(entry['courseid'], entry['userid'])][column_label] = entry['value']
-                elif (aggregation_type == 'normalized'):
-                    max = np.array([entry['value'] for entry in raw_results if 'value' in entry]).max()
-                    min = np.array([entry['value'] for entry in raw_results if 'value' in entry]).min()
-                    if (max is not None and min is not None):
-                        range = max - min
-                        for entry in raw_results:
-                            indicator_results[(entry['courseid'], entry['userid'])][column_label] = \
-                                (entry['value'] - min) / (range) if (range != 0) else 0.0
-                    else:
-                        raise Exception(f'max or min for results of indicator {indicator.id} ({indicator.name}) are ' +
-                                        f'None, there may be no Indicator results')
-                elif (aggregation_type == 'standardized'):
-                    avg = np.array([entry['value'] for entry in raw_results if 'value' in entry]).mean()
-                    stddev = np.array([entry['value'] for entry in raw_results if 'value' in entry]).std()
-                    # todo: verify that avg and stddev are not None
-                    for entry in raw_results:
-                        indicator_results[(entry['courseid'], entry['userid'])][column_label] = \
-                            (entry['value'] - avg) / stddev if (stddev != 0) else 0.0
+                if scaler is not None:
+                    df = pd.DataFrame(raw_results)
+                    df[['value',]] = scaler.fit_transform(df[['value',]])
+                    indicator_inner_results = df.to_dict('records')
                 else:
-                    raise Exception('Unknown aggregation type')
-        return indicator_results
+                    indicator_inner_results = raw_results
+
+                for entry in indicator_inner_results:
+                    indicator_results_dict[(entry['courseid'], entry['userid'])][column_label] = entry['value']
+
+        print(indicator_results_dict)
+        return indicator_results_dict
 
     def calculate_result(self, courses=Course.objects.exclude(format='site')):
-        indicator_results = self.provide_indicator_results('normalized', courses) # todo: get aggregation_type from self
+        indicator_results = self.provide_indicator_results(courses)
         construct_result = [{
             'courseid': courseid,
             'userid': userid,
