@@ -1,0 +1,58 @@
+{% extends 'assessment_base.html' %}
+
+{% block internal_javascript %}
+<script type="text/javascript">
+function add_weight_values(){
+    var arr = document.getElementsByClassName('weight_value');
+    var total = 0.0;
+    for(var i=0;i<arr.length;i++){
+        if(parseFloat(arr[i].value))
+            total += parseFloat(arr[i].value);
+    }
+    document.getElementById('sum').value = total;
+}
+
+    </script>
+{% endblock %}
+
+{% block content %}
+
+<form method="POST"> {% csrf_token %}
+    <table>
+        {{ formset.management_form }}
+        {% for form in formset %}
+            {% if forloop.first %}
+            <tr>
+                <th></th>
+                <th>Indicator name</th>
+                <th>DIFA ID</th>
+                <th>Weight</th>
+                <th></th>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>{{ form.instance.indicator.id }}</td>
+                <td>{{ form.instance.indicator.name }}</td>
+                <td>{{ form.instance.indicator.DIFA_reference_id }}</td>
+                <td>{{ form.weight }}</td>
+                <td>{{ form.id }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><input type="number" id="sum" name="total" disabled="disabled"></td>
+            <td><button type='button' onclick="add_weight_values()">show sum</button></td>
+        </tr>
+    </table>
+    <br>
+    {% if formset_errors is not None %}
+        {{ formset_errors.as_ul }}
+        <br>
+    {% endif %}
+
+    <input type="submit" value="save" />
+</form>
+
+{% endblock %}

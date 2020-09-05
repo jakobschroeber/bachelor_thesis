@@ -4,8 +4,8 @@ from assessment.views.indicators import IndicatorListView, IndicatorCreateView, 
     IndicatorCalculateListView, IndicatorResultsListView, IndicatorScheduleUpdateView, IndicatorStatusUpdateView
 
 from assessment.views.constructs import ConstructListView, ConstructCreateView, ConstructDeleteView, ConstructUpdateView, \
-    ConstructCalculateListView, ConstructIndicatorValuesView, ConstructResultsListView, ConstructScheduleUpdateView, \
-    ConstructStatusUpdateView
+    ConstructCalculateListView, ConstructIndicatorWeightUpdateView, ConstructIndicatorValuesView, ConstructResultsListView, \
+    ConstructScheduleUpdateView, ConstructStatusUpdateView
 
 
 urlpatterns = [
@@ -24,6 +24,7 @@ urlpatterns = [
     path('constructs/<int:construct_id>/schedule-update/', ConstructScheduleUpdateView.as_view()),
     path('constructs/<int:construct_id>/status-update/', ConstructStatusUpdateView.as_view()),
     path('constructs/<int:construct_id>/indicators/', IndicatorListView.as_view()),
+    path('constructs/<int:construct_id>/indicators/indicator_weights/', ConstructIndicatorWeightUpdateView.as_view()),
     path('constructs/<int:construct_id>/indicators/create/', IndicatorCreateView.as_view()),
     path('constructs/<int:construct_id>/indicators/<int:indicator_id>/', IndicatorUpdateView.as_view()),
     path('constructs/<int:construct_id>/indicators/<int:indicator_id>/delete/', IndicatorDeleteView.as_view()),

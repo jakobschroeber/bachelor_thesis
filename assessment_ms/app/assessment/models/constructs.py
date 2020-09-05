@@ -6,7 +6,6 @@ from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from enum import Enum
 import pandas as pd
 from sklearn import preprocessing
-from statistics import mean
 
 
 class Scaler(Enum):
@@ -90,10 +89,14 @@ class Construct(models.Model):
 
     def calculate_result(self, courses=Course.objects.exclude(format='site')):
         indicator_results = self.provide_indicator_results(courses)
+        print(indicator_results)
+        weights_qs = ConstructIndicatorRelation.objects.filter(construct=self).select_related('indicator')
+        weights_dict = {i.indicator.column_label:i.weight for i in weights_qs}
         construct_result = [{
             'courseid': courseid,
             'userid': userid,
-            self.column_label: mean(indicator_results[(courseid, userid)][value] for value in indicator_results[(courseid, userid)])
+            self.column_label: sum(indicator_results[(courseid, userid)][column_label] * weights_dict[column_label]
+                                   for column_label in indicator_results[(courseid, userid)])
         } for (courseid, userid) in indicator_results if any(indicator_results[(courseid, userid)])]
         return indicator_results, construct_result
 
@@ -144,7 +147,8 @@ class Construct(models.Model):
 
 class ConstructIndicatorRelation(models.Model):
     construct   = models.ForeignKey(Construct, on_delete=models.CASCADE)
-    indicator   = models.ForeignKey(Indicator, on_delete=models.CASCADE)
+    indicator   = models.ForeignKey(Indicator, related_name='construct_relation', on_delete=models.CASCADE)
+    weight      = models.FloatField(default=0.0)
 
 
 class ConstructAssessment(models.Model):

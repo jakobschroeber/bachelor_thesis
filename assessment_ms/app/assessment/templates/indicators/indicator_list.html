@@ -6,8 +6,12 @@
     {% if forloop.first %}
     <tr>
         {% for fieldname in headers %}<th>{{ fieldname }}</th>{% endfor %}
-        <th colspan="5">Schedule</th>
-        <th>Enabled</th>
+        {% if construct is None %}
+            <th colspan="5">Schedule</th>
+            <th>Enabled</th>
+        {% else %}
+            <th>Weight</th>
+        {% endif %}
         <th>Actions</th>
     </tr>
     {% endif %}
@@ -15,14 +19,16 @@
         {% for value in instance.values %}<td>{{ value }}</td>{% endfor %}
         <td>
             <a href="{{ instance.id }}/indicator-update/">Update indicator</a><br>
-            <a href="{{ instance.id }}/schedule-update/">Update schedule</a><br>
-            {% if instance.periodictask__enabled == True %}
-                <a href="{{ instance.id }}/status-update/">Disable assessment</a><br>
-            {% else %}
-                <a href="{{ instance.id }}/status-update/">Enable assessment</a><br>
+            {% if construct is None %}
+                <a href="{{ instance.id }}/schedule-update/">Update schedule</a><br>
+                {% if instance.periodictask__enabled == True %}
+                    <a href="{{ instance.id }}/status-update/">Disable assessment</a><br>
+                {% else %}
+                    <a href="{{ instance.id }}/status-update/">Enable assessment</a><br>
+                {% endif %}
             {% endif %}
             <a href="{{ instance.id }}/delete/">Delete indicator</a><br>
-            <a href="{{ instance.id }}/calculate/">Calculate ad-hoc values of indicator (default time span)</a><br>
+            <a href="{{ instance.id }}/calculate/">Calculate ad-hoc values of indicator</a><br>
             <a href="{{ instance.id }}/results/">Show results from database</a><br>
         </td>
     </tr>
@@ -31,6 +37,6 @@
 </table>
 <br>
 <p>
-    <a href="create/">Create new indicator</a>
+    <a href="create/">Create new indicator</a>  <a href="indicator_weights/">Adjust indicator weights</a><br>
 </p>
 {% endblock %}

@@ -32,6 +32,8 @@ class Indicator(models.Model):
             mod.minutes = minutes
         exec(self.code, mod.__dict__)
 
+        # todo: validation of mod here: must have attribute 'dict_result'
+
         # todo: validation of dict_result needed here:
         #   - column headers have to be 'courseid', 'userid', 'value' - 3 keys only
         #   - at least two different results per course, otherwise exclude course

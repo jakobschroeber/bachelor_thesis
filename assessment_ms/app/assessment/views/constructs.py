@@ -6,10 +6,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, DeleteView
 
-from assessment.models.constructs import Construct, ConstructResult
-from assessment.forms import ConstructForm
+from assessment.models.constructs import Construct, ConstructIndicatorRelation, ConstructResult
+from assessment.forms import ConstructForm, ConstructIndicatorRelationForm, ConstructIndicatorRelationFormSet
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
-from assessment.forms import IndicatorForm, CrontabScheduleForm, PeriodicTaskForm
+from assessment.forms import CrontabScheduleForm, PeriodicTaskForm
 
 
 
@@ -183,6 +183,43 @@ class ConstructStatusUpdateView(FormView):
             context['title'] = f'{action} assessment for construct'
             context['indicator'] = self.construct
             return context
+
+
+class ConstructIndicatorWeightUpdateView(FormView):
+    model = ConstructIndicatorRelation
+    template_name = "constructs/construct_indicator_weights.html"
+    form_class = ConstructIndicatorRelationFormSet
+    success_url = '..'
+    formset_errors = None
+
+    def get_title(self):
+        self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
+        title = f'Adjust weights of indicators assigned to construct {self.construct.id} ({self.construct.name})'
+        return title
+
+    def post(self, request, *args, **kwargs):
+        formset = ConstructIndicatorRelationFormSet(request.POST)
+
+        if formset.is_valid():
+            for form in formset:
+                if form.is_valid():
+                    form.save()
+                else:
+                    print(form.errors)
+            return self.form_valid(formset)
+        self.formset_errors = formset.non_form_errors()
+        print(self.formset_errors)
+        return self.render_to_response({'formset': formset, 'formset_errors': self.formset_errors, 'title': self.get_title()})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.get_title()
+        qs = ConstructIndicatorRelation.objects.filter(construct=self.construct)
+        formset = ConstructIndicatorRelationFormSet(queryset=qs)
+        context['formset'] = formset
+        context['formset_errors'] = self.formset_errors
+
+        return context
 
 
 class ConstructIndicatorValuesView(TemplateView):

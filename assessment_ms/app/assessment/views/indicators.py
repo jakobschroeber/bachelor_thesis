@@ -126,8 +126,6 @@ class IndicatorDeleteView(DeleteView):
 
 
 class IndicatorListView(ListView):
-    columns = ['id', 'name', 'column_label', 'DIFA_reference_id', 'time_created', 'last_time_modified', 'schedule__minute', \
-               'schedule__hour', 'schedule__day_of_week', 'schedule__day_of_month', 'schedule__month_of_year', 'periodictask__enabled']
     template_name = "indicators/indicator_list.html"
 
     def get_queryset(self):
@@ -135,9 +133,15 @@ class IndicatorListView(ListView):
             self.construct = Construct.objects.get(pk=self.kwargs.get('construct_id'))
         except Construct.DoesNotExist:
             self.construct = None
+            self.columns = ['id', 'name', 'column_label', 'DIFA_reference_id', 'time_created', 'last_time_modified',
+                            'schedule__minute', 'schedule__hour', 'schedule__day_of_week', 'schedule__day_of_month',
+                            'schedule__month_of_year', 'periodictask__enabled']
             queryset = Indicator.objects.select_related('schedule', 'periodictask').values(*self.columns)
         else:
-            queryset = Indicator.objects.filter(construct__pk=self.construct.pk).select_related('schedule', 'periodictask').values(*self.columns)
+            self.columns = ['id', 'name', 'column_label', 'DIFA_reference_id', 'time_created', 'last_time_modified',
+                            'construct_relation__weight']
+            queryset = Indicator.objects.filter(construct__pk=self.construct.pk).prefetch_related('construct_relation',
+                                                                                                  ).values(*self.columns)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -147,6 +151,7 @@ class IndicatorListView(ListView):
             title = 'List of all indicators'
         else:
             title = f'List of indicators assigned to construct {self.construct.id} ({self.construct.name})'
+        context['construct'] = self.construct
         context['title'] = title
         context['headers'] = column_headers
         return context
