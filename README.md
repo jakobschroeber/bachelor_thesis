@@ -55,7 +55,7 @@ docker exec assessment_ms sh -c "python manage.py loaddata initial_data.json"
 10. Open a new terminal window, change to the installation folder "Drive:/my/location/bachelor_thesis" and start celery worker in order to carry out periodic assessments and exports
 
 ```bash
-docker exec assessment_ms sh -c "celery -A app worker -l info"
+docker exec assessment_ms sh -c "celery -A app worker -l info --concurrency=1"
 ```
 
 11. Open a new terminal window, change to the installation folder "Drive:/my/location/bachelor_thesis" and start celery-beat in order to provide celery with task messages
@@ -109,3 +109,8 @@ docker exec assessment_ms sh -c "celery -A app control shutdown"
 docker exec assessment_ms sh -c "kill $(cat celerybeat.pid)"
 ```
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Remove all celery tasks from task queue
+
+```bash
+docker exec -it assessment_ms sh -c "celery -A app purge"
+```

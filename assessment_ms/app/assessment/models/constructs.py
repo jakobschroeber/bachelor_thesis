@@ -60,7 +60,7 @@ class Construct(models.Model):
         indicator_results_dict = {}
 
         scaler = self.getscaler()
-        print(scaler)
+        print(f'Loaded preprocessing tool: {scaler}')
 
         # For each course create key (courseid, userid)
         for course in course_qs:
@@ -84,12 +84,11 @@ class Construct(models.Model):
                 for entry in indicator_inner_results:
                     indicator_results_dict[(entry['courseid'], entry['userid'])][column_label] = entry['value']
 
-        print(indicator_results_dict)
         return indicator_results_dict
 
     def calculate_result(self, courses=Course.objects.exclude(format='site')):
         indicator_results = self.provide_indicator_results(courses)
-        print(indicator_results)
+
         weights_qs = ConstructIndicatorRelation.objects.filter(construct=self).select_related('indicator')
         weights_dict = {i.indicator.column_label:i.weight for i in weights_qs}
         construct_result = [{
@@ -98,11 +97,12 @@ class Construct(models.Model):
             self.column_label: sum(indicator_results[(courseid, userid)][column_label] * weights_dict[column_label]
                                    for column_label in indicator_results[(courseid, userid)])
         } for (courseid, userid) in indicator_results if any(indicator_results[(courseid, userid)])]
+
         return indicator_results, construct_result
 
     def save_result(self, courses=Course.objects.exclude(format='site')):
         preexisting_construct_results           = ConstructResult.objects.select_related('assessment').filter(assessment__construct=self)
-        preexisting_construct_indicator_results = ConstructIndicatorResult.objects.select_related('construct_result').filter(construct_result__assessment__construct=self)
+        preexisting_construct_indicator_results = ConstructIndicatorResult.objects.select_related('constructresult').filter(constructresult__assessment__construct=self)
         for course in courses:
             if course.ignore_activity:
                 preexisting_construct_results.filter(course=course.pk).delete()
@@ -134,7 +134,7 @@ class Construct(models.Model):
             user = User.objects.get(pk=userid)
             for column_label in raw_indicator_results[(courseid, userid)]:
                 entry = ConstructIndicatorResult(
-                    construct_result=stored_construct_results.get(course=course, user=user),
+                    constructresult=stored_construct_results.get(course=course, user=user),
                     indicator=Indicator.objects.get(column_label=column_label),
                     course=course,
                     user=user,
@@ -154,6 +154,7 @@ class ConstructIndicatorRelation(models.Model):
 class ConstructAssessment(models.Model):
     construct       = models.ForeignKey(Construct, on_delete=models.CASCADE)
     time_created    = models.DateTimeField(auto_now_add=True)
+    exported = models.BooleanField(default=False)
 
     # todo: create clean-up job for old assessments
 
@@ -170,15 +171,13 @@ class ConstructResult(models.Model):
 
 
 class ConstructIndicatorResult(models.Model):
-    construct_result    = models.ForeignKey(ConstructResult, related_name='measures', on_delete=models.CASCADE)
+    constructresult    = models.ForeignKey(ConstructResult, related_name='measures', on_delete=models.CASCADE)
     indicator           = models.ForeignKey(Indicator, on_delete=models.CASCADE)
     course              = models.ForeignKey(Course, on_delete=models.CASCADE)
     user                = models.ForeignKey(User, on_delete=models.CASCADE)
     value               = models.FloatField(null=True)
-    time_created        = models.DateTimeField(auto_now_add=True) # todo: remove column time_created from models ConstructResult and ConstructIndicatorResult
+    time_created        = models.DateTimeField(auto_now_add=True)
     exported            = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ["construct_result", "course", "user"]
-
-    # todo: add attribute exported to model and in ListView
+        ordering = ["constructresult", "course", "user"]

@@ -30,7 +30,9 @@ services:
     labels:
       NAME: "rabbitmq"
     volumes:
+      - "${RABBITMQ_STORAGE}:/var/lib/rabbitmq/mnesia"
       - "${RABBITMQ_CONFIG}:/etc/rabbitmq/rabbitmq.config"
+    restart: unless-stopped
           
   moodle:
     image: 'bitnami/moodle:3'
@@ -53,7 +55,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    restart: on-failure
+    restart: unless-stopped
       
   db:
     image: mysql:5
@@ -77,6 +79,7 @@ services:
       test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
       timeout: 10s
       retries: 10
+    restart: unless-stopped
              
   cassandra:
     image: cassandra:2.1
@@ -90,3 +93,4 @@ services:
         interval: 15s
         timeout: 10s
         retries: 10
+    restart: unless-stopped

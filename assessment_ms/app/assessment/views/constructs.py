@@ -260,7 +260,6 @@ class ConstructResultsListView(ListView):
 
     def get_queryset(self):
         self.construct = get_object_or_404(Construct, id=self.kwargs.get("construct_id"))
-        # construct_assessments = ConstructAssessment.objects.filter(construct=self.construct)
         queryset = ConstructResult.objects.filter(assessment__construct=self.construct).select_related('user')
         return queryset
 

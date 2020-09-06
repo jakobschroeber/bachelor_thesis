@@ -36,810 +36,8 @@
   "pk": 1,
   "fields": {
     "construct": 1,
-    "indicator": 1
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 1,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:15:00.142Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 2,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:16:00.186Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 3,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:17:00.142Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 4,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:18:00.152Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 5,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:19:00.143Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 6,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:20:00.188Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 7,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:21:00.168Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 8,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:22:00.146Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 9,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:23:00.174Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 10,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:24:00.227Z"
-  }
-},
-{
-  "model": "assessment.constructassessment",
-  "pk": 11,
-  "fields": {
-    "construct": 1,
-    "time_created": "2020-09-04T09:25:00.195Z"
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 1,
-  "fields": {
-    "construct_result": 1,
     "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:15:00.396Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 2,
-  "fields": {
-    "construct_result": 2,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:15:00.397Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 3,
-  "fields": {
-    "construct_result": 3,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:15:00.397Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 4,
-  "fields": {
-    "construct_result": 4,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 8.0,
-    "time_created": "2020-09-04T09:15:00.399Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 5,
-  "fields": {
-    "construct_result": 5,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 11.0,
-    "time_created": "2020-09-04T09:15:00.400Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 6,
-  "fields": {
-    "construct_result": 6,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:16:00.424Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 7,
-  "fields": {
-    "construct_result": 7,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:16:00.424Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 8,
-  "fields": {
-    "construct_result": 8,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:16:00.424Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 9,
-  "fields": {
-    "construct_result": 9,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 8.0,
-    "time_created": "2020-09-04T09:16:00.424Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 10,
-  "fields": {
-    "construct_result": 10,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 11.0,
-    "time_created": "2020-09-04T09:16:00.424Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 11,
-  "fields": {
-    "construct_result": 11,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:17:00.355Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 12,
-  "fields": {
-    "construct_result": 12,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:17:00.355Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 13,
-  "fields": {
-    "construct_result": 13,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:17:00.355Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 14,
-  "fields": {
-    "construct_result": 14,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 8.0,
-    "time_created": "2020-09-04T09:17:00.355Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 15,
-  "fields": {
-    "construct_result": 15,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 11.0,
-    "time_created": "2020-09-04T09:17:00.355Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 16,
-  "fields": {
-    "construct_result": 16,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:18:00.439Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 17,
-  "fields": {
-    "construct_result": 17,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:18:00.439Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 18,
-  "fields": {
-    "construct_result": 18,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:18:00.439Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 19,
-  "fields": {
-    "construct_result": 19,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 8.0,
-    "time_created": "2020-09-04T09:18:00.440Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 20,
-  "fields": {
-    "construct_result": 20,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 11.0,
-    "time_created": "2020-09-04T09:18:00.440Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 21,
-  "fields": {
-    "construct_result": 21,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:19:00.354Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 22,
-  "fields": {
-    "construct_result": 22,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:19:00.354Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 23,
-  "fields": {
-    "construct_result": 23,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:19:00.354Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 24,
-  "fields": {
-    "construct_result": 24,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 8.0,
-    "time_created": "2020-09-04T09:19:00.354Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 25,
-  "fields": {
-    "construct_result": 25,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 11.0,
-    "time_created": "2020-09-04T09:19:00.354Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 26,
-  "fields": {
-    "construct_result": 26,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:20:00.468Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 27,
-  "fields": {
-    "construct_result": 27,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:20:00.469Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 28,
-  "fields": {
-    "construct_result": 28,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:20:00.470Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 29,
-  "fields": {
-    "construct_result": 29,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 8.0,
-    "time_created": "2020-09-04T09:20:00.470Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 30,
-  "fields": {
-    "construct_result": 30,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 11.0,
-    "time_created": "2020-09-04T09:20:00.470Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 31,
-  "fields": {
-    "construct_result": 31,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:21:00.476Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 32,
-  "fields": {
-    "construct_result": 32,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:21:00.476Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 33,
-  "fields": {
-    "construct_result": 33,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:21:00.476Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 34,
-  "fields": {
-    "construct_result": 34,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 8.0,
-    "time_created": "2020-09-04T09:21:00.476Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 35,
-  "fields": {
-    "construct_result": 35,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 11.0,
-    "time_created": "2020-09-04T09:21:00.477Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 36,
-  "fields": {
-    "construct_result": 36,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:22:00.375Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 37,
-  "fields": {
-    "construct_result": 37,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:22:00.375Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 38,
-  "fields": {
-    "construct_result": 38,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:22:00.375Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 39,
-  "fields": {
-    "construct_result": 39,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 8.0,
-    "time_created": "2020-09-04T09:22:00.375Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 40,
-  "fields": {
-    "construct_result": 40,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 11.0,
-    "time_created": "2020-09-04T09:22:00.375Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 41,
-  "fields": {
-    "construct_result": 41,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:23:00.381Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 42,
-  "fields": {
-    "construct_result": 42,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:23:00.382Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 43,
-  "fields": {
-    "construct_result": 43,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:23:00.382Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 44,
-  "fields": {
-    "construct_result": 44,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 8.0,
-    "time_created": "2020-09-04T09:23:00.382Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 45,
-  "fields": {
-    "construct_result": 45,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 11.0,
-    "time_created": "2020-09-04T09:23:00.382Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 46,
-  "fields": {
-    "construct_result": 46,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:24:00.437Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 47,
-  "fields": {
-    "construct_result": 47,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:24:00.437Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 48,
-  "fields": {
-    "construct_result": 48,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:24:00.437Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 49,
-  "fields": {
-    "construct_result": 49,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 1.0,
-    "time_created": "2020-09-04T09:24:00.437Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 50,
-  "fields": {
-    "construct_result": 50,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 1.375,
-    "time_created": "2020-09-04T09:24:00.438Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 51,
-  "fields": {
-    "construct_result": 51,
-    "indicator": 1,
-    "course": 4,
-    "user": 4,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:25:00.412Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 52,
-  "fields": {
-    "construct_result": 52,
-    "indicator": 1,
-    "course": 4,
-    "user": 17,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:25:00.412Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 53,
-  "fields": {
-    "construct_result": 53,
-    "indicator": 1,
-    "course": 4,
-    "user": 5,
-    "value": 0.0,
-    "time_created": "2020-09-04T09:25:00.412Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 54,
-  "fields": {
-    "construct_result": 54,
-    "indicator": 1,
-    "course": 4,
-    "user": 20,
-    "value": 1.0,
-    "time_created": "2020-09-04T09:25:00.412Z",
-    "exported": false
-  }
-},
-{
-  "model": "assessment.constructindicatorresult",
-  "pk": 55,
-  "fields": {
-    "construct_result": 55,
-    "indicator": 1,
-    "course": 4,
-    "user": 21,
-    "value": 1.375,
-    "time_created": "2020-09-04T09:25:00.412Z",
-    "exported": false
+    "weight": 0.0
   }
 },
 {
@@ -915,10 +113,34 @@
   }
 },
 {
+  "model": "django_celery_beat.crontabschedule",
+  "pk": 7,
+  "fields": {
+    "minute": "*/2",
+    "hour": "*",
+    "day_of_week": "*",
+    "day_of_month": "*",
+    "month_of_year": "*",
+    "timezone": "UTC"
+  }
+},
+{
+  "model": "django_celery_beat.crontabschedule",
+  "pk": 8,
+  "fields": {
+    "minute": "*/5",
+    "hour": "*",
+    "day_of_week": "*",
+    "day_of_month": "*",
+    "month_of_year": "*",
+    "timezone": "UTC"
+  }
+},
+{
   "model": "django_celery_beat.periodictasks",
   "pk": 1,
   "fields": {
-    "last_update": "2020-09-04T09:14:23.893Z"
+    "last_update": "2020-09-06T21:13:37.304Z"
   }
 },
 {
@@ -943,9 +165,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-09-04T09:24:00.002Z",
-    "total_run_count": 31,
-    "date_changed": "2020-09-04T09:24:45.223Z",
+    "last_run_at": "2020-09-06T21:35:00.001Z",
+    "total_run_count": 100,
+    "date_changed": "2020-09-06T21:35:15.328Z",
     "description": ""
   }
 },
@@ -971,9 +193,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-09-04T09:00:00.003Z",
-    "total_run_count": 1,
-    "date_changed": "2020-09-04T09:00:05.089Z",
+    "last_run_at": "2020-09-06T21:11:14.419Z",
+    "total_run_count": 4,
+    "date_changed": "2020-09-06T21:13:27.268Z",
     "description": ""
   }
 },
@@ -1055,9 +277,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-09-04T09:24:00.024Z",
-    "total_run_count": 10,
-    "date_changed": "2020-09-04T09:24:45.285Z",
+    "last_run_at": "2020-09-06T21:35:00.060Z",
+    "total_run_count": 79,
+    "date_changed": "2020-09-06T21:35:15.135Z",
     "description": ""
   }
 },
@@ -1085,7 +307,63 @@
     "enabled": true,
     "last_run_at": null,
     "total_run_count": 0,
-    "date_changed": "2020-09-04T08:53:54.184Z",
+    "date_changed": "2020-09-06T21:13:37.326Z",
+    "description": ""
+  }
+},
+{
+  "model": "django_celery_beat.periodictask",
+  "pk": 7,
+  "fields": {
+    "name": "Export construct assessments to Cassandra",
+    "task": "export.tasks.export_construct_assessments",
+    "interval": null,
+    "crontab": 7,
+    "solar": null,
+    "clocked": null,
+    "args": "[]",
+    "kwargs": "{}",
+    "queue": null,
+    "exchange": null,
+    "routing_key": null,
+    "headers": "{}",
+    "priority": null,
+    "expires": null,
+    "expire_seconds": null,
+    "one_off": false,
+    "start_time": null,
+    "enabled": true,
+    "last_run_at": "2020-09-06T21:34:00.041Z",
+    "total_run_count": 12,
+    "date_changed": "2020-09-06T21:35:15.271Z",
+    "description": ""
+  }
+},
+{
+  "model": "django_celery_beat.periodictask",
+  "pk": 8,
+  "fields": {
+    "name": "Clean-up already exported construct assessments",
+    "task": "export.tasks.cleanup_exported_construct_assessments",
+    "interval": null,
+    "crontab": 8,
+    "solar": null,
+    "clocked": null,
+    "args": "[]",
+    "kwargs": "{}",
+    "queue": null,
+    "exchange": null,
+    "routing_key": null,
+    "headers": "{}",
+    "priority": null,
+    "expires": null,
+    "expire_seconds": null,
+    "one_off": false,
+    "start_time": null,
+    "enabled": true,
+    "last_run_at": "2020-09-06T21:35:00.040Z",
+    "total_run_count": 5,
+    "date_changed": "2020-09-06T21:35:15.212Z",
     "description": ""
   }
 }

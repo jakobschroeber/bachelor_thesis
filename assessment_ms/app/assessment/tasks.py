@@ -1,34 +1,27 @@
 from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
+from app.settings import env
+from django.db import transaction
 
 from .models.indicators import Indicator
-from .models.constructs import Construct, ConstructAssessment, ConstructResult, ConstructIndicatorResult
+from .models.constructs import Construct
 
-@shared_task
+@shared_task(time_limit=int(env('DJANGO_ASSESSMENT_TIME_LIMIT')))
 def save_indicator_results(indicatorid):
-    indicator = Indicator.objects.get(id=indicatorid)
-    print(f'Triggered assessment of indicator: {indicator.id} ({indicator.name})')
-    indicator.save_result()
+    with transaction.atomic(using='moodle'):
+        indicator = Indicator.objects.get(id=indicatorid)
+        with transaction.atomic(using='moodle'):
+            print(f'Starting assessment of indicator: {indicator.id} ({indicator.name}) ...')
+            indicator.save_result()
+        print(f'Completed assessment of indicator: {indicator.id} ({indicator.name})')
 
-@shared_task
+
+@shared_task(time_limit=int(env('DJANGO_ASSESSMENT_TIME_LIMIT')))
 def save_construct_results(constructid):
-    construct = Construct.objects.get(id=constructid)
-    print(f'Triggered assessment of construct: {construct.id} ({construct.name})')
-    construct.save_result()
-
-# prepared for REST request
-# def get_latest_assessment(constructid):
-#     try:
-#         construct = Construct.objects.get(id=constructid)
-#     except Construct.DoesNotExist:
-#         raise Exception(f'Construct with id {constructid} does not exist')
-#
-#     construct_assessments = ConstructAssessment.objects.filter(construct=construct)
-#     if not (construct_assessments):
-#         raise Exception(f'Construct with id {constructid} does not have any assessments yet')
-#
-#     latest_assessment = construct_assessments.latest('time_created')
-#
-#     return latest_assessment
-
+    with transaction.atomic(using='moodle'):
+        construct = Construct.objects.get(id=constructid)
+        with transaction.atomic(using='moodle'):
+            print(f'Starting assessment of construct: {construct.id} ({construct.name}) ...')
+            construct.save_result()
+        print(f'Completed assessment of construct: {construct.id} ({construct.name})')
