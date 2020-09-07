@@ -8,4 +8,3 @@ admin.site.register(Course)
 admin.site.register(Context)
 admin.site.register(Role)
 admin.site.register(RoleAssignments)
-

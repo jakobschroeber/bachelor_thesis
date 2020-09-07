@@ -140,7 +140,7 @@
   "model": "django_celery_beat.periodictasks",
   "pk": 1,
   "fields": {
-    "last_update": "2020-09-06T21:13:37.304Z"
+    "last_update": "2020-09-07T13:55:13.575Z"
   }
 },
 {
@@ -165,9 +165,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-09-06T21:35:00.001Z",
-    "total_run_count": 100,
-    "date_changed": "2020-09-06T21:35:15.328Z",
+    "last_run_at": "2020-09-07T14:50:00.030Z",
+    "total_run_count": 389,
+    "date_changed": "2020-09-07T14:50:45.211Z",
     "description": ""
   }
 },
@@ -193,9 +193,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-09-06T21:11:14.419Z",
-    "total_run_count": 4,
-    "date_changed": "2020-09-06T21:13:27.268Z",
+    "last_run_at": "2020-09-07T14:00:00.035Z",
+    "total_run_count": 12,
+    "date_changed": "2020-09-07T14:01:25.361Z",
     "description": ""
   }
 },
@@ -221,9 +221,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": null,
-    "total_run_count": 0,
-    "date_changed": "2020-09-01T13:55:45.283Z",
+    "last_run_at": "2020-09-07T08:00:06.142Z",
+    "total_run_count": 1,
+    "date_changed": "2020-09-07T08:01:40.581Z",
     "description": ""
   }
 },
@@ -277,9 +277,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-09-06T21:35:00.060Z",
-    "total_run_count": 79,
-    "date_changed": "2020-09-06T21:35:15.135Z",
+    "last_run_at": "2020-09-07T14:50:00.002Z",
+    "total_run_count": 368,
+    "date_changed": "2020-09-07T14:50:45.413Z",
     "description": ""
   }
 },
@@ -305,9 +305,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": null,
-    "total_run_count": 0,
-    "date_changed": "2020-09-06T21:13:37.326Z",
+    "last_run_at": "2020-09-07T08:00:06.461Z",
+    "total_run_count": 1,
+    "date_changed": "2020-09-07T13:55:13.621Z",
     "description": ""
   }
 },
@@ -333,9 +333,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-09-06T21:34:00.041Z",
-    "total_run_count": 12,
-    "date_changed": "2020-09-06T21:35:15.271Z",
+    "last_run_at": "2020-09-07T14:50:00.063Z",
+    "total_run_count": 160,
+    "date_changed": "2020-09-07T14:50:45.275Z",
     "description": ""
   }
 },
@@ -361,9 +361,9 @@
     "one_off": false,
     "start_time": null,
     "enabled": true,
-    "last_run_at": "2020-09-06T21:35:00.040Z",
-    "total_run_count": 5,
-    "date_changed": "2020-09-06T21:35:15.212Z",
+    "last_run_at": "2020-09-07T14:50:00.051Z",
+    "total_run_count": 71,
+    "date_changed": "2020-09-07T14:50:45.342Z",
     "description": ""
   }
 }

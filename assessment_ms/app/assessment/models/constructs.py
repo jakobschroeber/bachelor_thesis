@@ -1,11 +1,15 @@
-from django.db import models
-from assessment.models.indicators import Indicator, IndicatorResult
-from administration.models import Course, User
-from django_celery_beat.models import CrontabSchedule, PeriodicTask
-
 from enum import Enum
 import pandas as pd
 from sklearn import preprocessing
+
+from django.db import models
+from assessment.models.indicators import Indicator
+from administration.models import Course, User
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
+
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class Scaler(Enum):
@@ -60,7 +64,7 @@ class Construct(models.Model):
         indicator_results_dict = {}
 
         scaler = self.getscaler()
-        print(f'Loaded preprocessing tool: {scaler}')
+        log.info(f'Loaded preprocessing tool: {scaler}')
 
         # For each course create key (courseid, userid)
         for course in course_qs:
@@ -156,7 +160,6 @@ class ConstructAssessment(models.Model):
     time_created    = models.DateTimeField(auto_now_add=True)
     exported = models.BooleanField(default=False)
 
-    # todo: create clean-up job for old assessments
 
 class ConstructResult(models.Model):
     assessment          = models.ForeignKey(ConstructAssessment, on_delete=models.CASCADE)

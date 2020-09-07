@@ -204,11 +204,8 @@ class ConstructIndicatorWeightUpdateView(FormView):
             for form in formset:
                 if form.is_valid():
                     form.save()
-                else:
-                    print(form.errors)
             return self.form_valid(formset)
         self.formset_errors = formset.non_form_errors()
-        print(self.formset_errors)
         return self.render_to_response({'formset': formset, 'formset_errors': self.formset_errors, 'title': self.get_title()})
 
     def get_context_data(self, **kwargs):

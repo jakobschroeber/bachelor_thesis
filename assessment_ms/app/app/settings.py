@@ -12,6 +12,70 @@ env = environ.Env(
 # reading .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '../env/.env'))
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'timestamp': {
+            'format': '{asctime} {levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'timestamp'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/django.log'),
+            'formatter': 'timestamp'
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': env('DJANGO_LOG_LEVEL'),
+            'propagate': True,
+        },
+        'app.settings': {
+            'handlers': ['file'],
+            'level': env('DJANGO_LOG_LEVEL'),
+            'propagate': False,
+        },
+        'administration.tasks': {
+            'handlers': ['file'],
+            'level': env('DJANGO_LOG_LEVEL'),
+            'propagate': False,
+        },
+        'assessment.tasks': {
+            'handlers': ['file'],
+            'level': env('DJANGO_LOG_LEVEL'),
+            'propagate': False,
+        },
+        'assessment.models.constructs': {
+            'handlers': ['file'],
+            'level': env('DJANGO_LOG_LEVEL'),
+            'propagate': False,
+        },
+        'export.tasks': {
+            'handlers': ['file'],
+            'level': env('DJANGO_LOG_LEVEL'),
+            'propagate': False,
+        },
+    },
+}
+
+# Additional FileHandler in app.celery
+
+from logging.config import dictConfig
+dictConfig(LOGGING)
+
 # False if not in os.environ
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DJANGO_DEBUG')
@@ -103,15 +167,18 @@ DATABASES = {
 }
 
 # make connection to Cassandra optional at startup: try the connection with cassandra-driver, if successful add 'cassandra to DATABASES'
+
 try:
     from cassandra.cluster import Cluster
-    cluster = Cluster([env('DJANGO_EXPORT_DB_HOST')])
+    cluster = Cluster(contact_points=[env('DJANGO_EXPORT_DB_HOST')])
     session = cluster.connect()
 
     from export.db import update_connections
     update_connections()
 except Exception:
-    print(f"Could not connect with database 'cassandra'. Please check connection data and status")
+    import logging
+    log = logging.getLogger(__name__)
+    log.info(f"Could not connect with database 'cassandra'. Please check connection data and status")
 
 DATABASE_ROUTERS = ['app.db.Router']
 
