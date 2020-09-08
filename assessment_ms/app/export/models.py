@@ -12,7 +12,7 @@ class IndicatorResultExport(DjangoCassandraModel):
     time_created    = columns.DateTime()
 
 
-class AssessmentExport(DjangoCassandraModel):
+class ConstructAssessmentExport(DjangoCassandraModel):
     uuid            = columns.UUID(primary_key=True, default=uuid.uuid4)
     construct_id    = columns.Integer(index=True)
     time_created    = columns.DateTime()

@@ -11,7 +11,7 @@ import logging
 
 from assessment.models.indicators import IndicatorResult
 from assessment.models.constructs import ConstructAssessment, ConstructResult, ConstructIndicatorResult
-from .models import IndicatorResultExport, AssessmentExport, ConstructResultExport, ConstructIndicatorResultExport
+from .models import IndicatorResultExport, ConstructAssessmentExport, ConstructResultExport, ConstructIndicatorResultExport
 
 
 update_connections()
@@ -60,7 +60,7 @@ def export_construct_assessments():
 
         with transaction.atomic(using='cassandra'):
             for result in construct_assessment_export_qs:
-                AssessmentExport.objects.create(**result)
+                ConstructAssessmentExport.objects.create(**result)
             for result in construct_result_export_qs:
                 ConstructResultExport.objects.create(**result)
             for result in construct_indicator_result_export_qs:
@@ -75,9 +75,49 @@ def export_construct_assessments():
 def cleanup_exported_construct_assessments():
     with transaction.atomic(using='default'):
         log.info(f'Starting clean-up of construct assessments ...')
-        construct_assessment_cleanup_qs = ConstructAssessment.objects.filter(exported=True)
-        construct_result_cleanup_qs = ConstructResult.objects.filter(exported=True)
-        construct_indicator_cleanup_qs = ConstructIndicatorResult.objects.filter(exported=True)
+
+        assessed_constructs = list(
+            ConstructAssessment.objects.order_by('construct').values_list('construct', flat=True).distinct())
+
+        latest_construct_assessments = []
+        for construct in assessed_constructs:
+            latest_construct_assessments.append(
+                ConstructAssessment.objects.filter(construct=construct).latest('time_created').id)
+        log.info(
+            f'Identified assessments with id in {latest_construct_assessments} as latest construct assessments')
+        print(latest_construct_assessments)
+
+        latest_construct_results = ConstructResult.objects.select_related(
+            'assessment').filter(assessment_id__in=latest_construct_assessments).values_list('id', flat=True)
+        print(latest_construct_results)
+
+        latest_construct_indicator_results = ConstructIndicatorResult.objects.select_related('constructresult__assessment').filter(
+            constructresult__assessment_id__in=latest_construct_assessments).values_list('id', flat=True)
+        print(latest_construct_indicator_results)
+
+        construct_assessment_cleanup_qs = ConstructAssessment.objects.filter(exported=True).exclude(id__in=latest_construct_assessments)
+        construct_result_cleanup_qs = ConstructResult.objects.filter(exported=True).exclude(id__in=latest_construct_results)
+        construct_indicator_cleanup_qs = ConstructIndicatorResult.objects.filter(exported=True).exclude(id__in=latest_construct_indicator_results)
+
+        # assessed_constructs = list(ConstructAssessment.objects.order_by('construct').values_list('construct').distinct())
+        # latest_construct_assessments_list = []
+        #
+        # for construct in assessed_constructs:
+        #     latest_construct_assessments_list.append(ConstructAssessment.objects.filter(construct=construct).latest('time_created').id)
+        # log.info(f'Identified assessments with id in {latest_construct_assessments_list} as latest construct assessments')
+        #
+        # latest_construct_assessments = ConstructAssessment.objects.filter(id__in=latest_construct_assessments_list)
+        # print(latest_construct_assessments)
+        # latest_construct_results = ConstructResult.objects.select_related(
+        #     'assessment').filter(assessment_id__in=latest_construct_assessments_list)
+        # print(latest_construct_results)
+        # latest_construct_indicator_results = ConstructIndicatorResult.objects.select_related(
+        #     'constructresult__assessment').filter(constructresult__assessment_id__in=latest_construct_assessments_list)
+        # print(latest_construct_indicator_results)
+        #
+        # construct_assessment_cleanup_qs = ConstructAssessment.objects.filter(exported=True).difference(latest_construct_assessments)
+        # construct_result_cleanup_qs = ConstructResult.objects.filter(exported=True).difference(latest_construct_results)
+        # construct_indicator_cleanup_qs = ConstructIndicatorResult.objects.filter(exported=True).difference(latest_construct_indicator_results)
 
         construct_assessment_cleanup_qs.delete()
         construct_result_cleanup_qs.delete()

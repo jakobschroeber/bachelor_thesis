@@ -1,2 +1,7 @@
-*
+celery/*
+django_app/*
+third_party/*
+!celery/.gitkeep
+!django_app/.gitkeep
+!third_party/.gitkeep
 !.gitignore
