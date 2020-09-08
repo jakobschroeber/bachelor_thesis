@@ -1,23 +1,29 @@
 import os
 import environ
+import logging.config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env(
     # set casting, default value
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    DJANGO_APP_LOG_LEVEL=(str, 'INFO'),
+    CELERY_LOG_LEVEL=(str, 'INFO'),
+    THIRD_PARTY_LOG_LEVEL=(str, 'INFO')
 )
 
 # reading .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '../env/.env'))
 
-LOGGING = {
+LOGGING_CONFIG = None
+
+LOGGING= {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'timestamp': {
-            'format': '{asctime} {levelname} {message}',
+            'format': '{asctime} {name} {levelname} {message}',
             'style': '{',
         },
     },
@@ -26,55 +32,77 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'timestamp'
         },
-        'file': {
+        'celery': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/django.log'),
-            'formatter': 'timestamp'
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/celery/celery.log'),
+            'formatter': 'timestamp',
+            'maxBytes': 1024*1024*10,
+            'backupCount': 10
         },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'WARNING',
+        'django_app': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/django_app/django_app.log'),
+            'formatter': 'timestamp',
+            'maxBytes': 1024*1024*10,
+            'backupCount': 10
+        },
+        'third_party': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/third_party/third_party.log'),
+            'formatter': 'timestamp',
+            'maxBytes': 1024*1024*10,
+            'backupCount': 10
+        },
     },
     'loggers': {
+        '': {
+            'handlers': ['console', 'third_party'],
+            'level': env('THIRD_PARTY_LOG_LEVEL'),
+        },
         'django': {
-            'handlers': ['file'],
-            'level': env('DJANGO_LOG_LEVEL'),
-            'propagate': True,
+            'handlers': ['console', 'django_app'],
+            'level': env('DJANGO_APP_LOG_LEVEL'),
+            'propagate': False
         },
-        'app.settings': {
-            'handlers': ['file'],
-            'level': env('DJANGO_LOG_LEVEL'),
-            'propagate': False,
+        'celery': {
+            'handlers': ['console', 'celery'],
+            'level': env('CELERY_LOG_LEVEL'),
+            'propagate': False
         },
-        'administration.tasks': {
-            'handlers': ['file'],
-            'level': env('DJANGO_LOG_LEVEL'),
-            'propagate': False,
+        'app': {
+            'handlers': ['django_app'],
+            'level': env('DJANGO_APP_LOG_LEVEL'),
+            'propagate': False
         },
-        'assessment.tasks': {
-            'handlers': ['file'],
-            'level': env('DJANGO_LOG_LEVEL'),
-            'propagate': False,
+        'administration': {
+            'handlers': ['django_app'],
+            'level': env('DJANGO_APP_LOG_LEVEL'),
+            'propagate': False
         },
-        'assessment.models.constructs': {
-            'handlers': ['file'],
-            'level': env('DJANGO_LOG_LEVEL'),
-            'propagate': False,
+        'assessment': {
+            'handlers': ['django_app'],
+            'level': env('DJANGO_APP_LOG_LEVEL'),
+            'propagate': False
         },
-        'export.tasks': {
-            'handlers': ['file'],
-            'level': env('DJANGO_LOG_LEVEL'),
-            'propagate': False,
+        'data_source': {
+            'handlers': ['django_app'],
+            'level': env('DJANGO_APP_LOG_LEVEL'),
+            'propagate': False
+        },
+        'export': {
+            'handlers': ['django_app'],
+            'level': env('DJANGO_APP_LOG_LEVEL'),
+            'propagate': False
         },
     },
 }
 
-# Additional FileHandler in app.celery
+logging.config.dictConfig(LOGGING)
 
-from logging.config import dictConfig
-dictConfig(LOGGING)
+# Additional FileHandler in app.celery
 
 # False if not in os.environ
 # SECURITY WARNING: don't run with debug turned on in production!
