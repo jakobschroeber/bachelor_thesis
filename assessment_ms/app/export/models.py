@@ -8,7 +8,7 @@ class IndicatorResultExport(DjangoCassandraModel):
     indicator_id    = columns.Integer(index=True)
     course_id       = columns.Integer(index=True)
     user_id         = columns.Integer(index=True)
-    value           = columns.Integer()
+    value           = columns.Float()
     time_created    = columns.DateTime()
 
 
@@ -23,7 +23,7 @@ class ConstructResultExport(DjangoCassandraModel):
     assessment_id           = columns.Integer(index=True)
     course_id               = columns.Integer(index=True)
     user_id                 = columns.Integer(index=True)
-    value                   = columns.Integer()
+    value                   = columns.Float()
     time_created            = columns.DateTime()
 
 
@@ -33,5 +33,5 @@ class ConstructIndicatorResultExport(DjangoCassandraModel):
     indicator_id                = columns.Integer(index=True)
     course_id                   = columns.Integer(index=True)
     user_id                     = columns.Integer(index=True)
-    value                       = columns.Integer()
+    value                       = columns.Float()
     time_created                = columns.DateTime()

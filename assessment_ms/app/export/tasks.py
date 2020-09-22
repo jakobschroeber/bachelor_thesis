@@ -99,26 +99,6 @@ def cleanup_exported_construct_assessments():
         construct_result_cleanup_qs = ConstructResult.objects.filter(exported=True).exclude(id__in=latest_construct_results)
         construct_indicator_cleanup_qs = ConstructIndicatorResult.objects.filter(exported=True).exclude(id__in=latest_construct_indicator_results)
 
-        # assessed_constructs = list(ConstructAssessment.objects.order_by('construct').values_list('construct').distinct())
-        # latest_construct_assessments_list = []
-        #
-        # for construct in assessed_constructs:
-        #     latest_construct_assessments_list.append(ConstructAssessment.objects.filter(construct=construct).latest('time_created').id)
-        # log.info(f'Identified assessments with id in {latest_construct_assessments_list} as latest construct assessments')
-        #
-        # latest_construct_assessments = ConstructAssessment.objects.filter(id__in=latest_construct_assessments_list)
-        # print(latest_construct_assessments)
-        # latest_construct_results = ConstructResult.objects.select_related(
-        #     'assessment').filter(assessment_id__in=latest_construct_assessments_list)
-        # print(latest_construct_results)
-        # latest_construct_indicator_results = ConstructIndicatorResult.objects.select_related(
-        #     'constructresult__assessment').filter(constructresult__assessment_id__in=latest_construct_assessments_list)
-        # print(latest_construct_indicator_results)
-        #
-        # construct_assessment_cleanup_qs = ConstructAssessment.objects.filter(exported=True).difference(latest_construct_assessments)
-        # construct_result_cleanup_qs = ConstructResult.objects.filter(exported=True).difference(latest_construct_results)
-        # construct_indicator_cleanup_qs = ConstructIndicatorResult.objects.filter(exported=True).difference(latest_construct_indicator_results)
-
         construct_assessment_cleanup_qs.delete()
         construct_result_cleanup_qs.delete()
         construct_indicator_cleanup_qs.delete()

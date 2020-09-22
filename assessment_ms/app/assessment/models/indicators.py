@@ -12,7 +12,7 @@ class Indicator(models.Model):
     code                = models.TextField(default='# Python code for indicator calculation\n\n')
     minutes             = models.BigIntegerField(help_text = 'Consider ... minutes retrospectively')
     description         = models.CharField(max_length=100, blank=True, help_text = 'Description')
-    DIFA_reference_id   = models.CharField(max_length=50, blank=True, help_text = 'DIFA ID') # todo: make column_label unique=True
+    DIFA_reference_id   = models.CharField(max_length=50, blank=True, help_text = 'DIFA ID')
     time_created        = models.DateTimeField(auto_now_add=True, help_text = 'Created')
     last_time_modified  = models.DateTimeField(auto_now=True, help_text = 'Last modified')
     schedule            = models.ForeignKey(CrontabSchedule, on_delete=models.PROTECT, null=True)

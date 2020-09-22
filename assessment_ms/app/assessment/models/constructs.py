@@ -44,7 +44,7 @@ class Construct(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-    def getscaler(self, scalername=None):
+    def get_scaler(self, scalername=None):
         if scalername is None:
             scalername = self.scaler
         return {
@@ -63,7 +63,7 @@ class Construct(models.Model):
         indicators = self.indicators.all()
         indicator_results_dict = {}
 
-        scaler = self.getscaler()
+        scaler = self.get_scaler()
         log.info(f'Loaded preprocessing tool: {scaler}')
 
         # For each course create key (courseid, userid)

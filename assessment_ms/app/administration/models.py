@@ -14,7 +14,7 @@ class User(AbstractMoodleUser):
 
 
 class Course(AbstractMoodleCourse):
-    ignore_activity = models.BooleanField(default=False)
+    ignore_activity = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["id"]
@@ -52,7 +52,7 @@ class Role(AbstractMoodleRole):
 
 
 class RoleAssignments(AbstractMoodleRoleAssignments):
-    ignore_activity = models.BooleanField(default=False)
+    ignore_activity = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["id"]
